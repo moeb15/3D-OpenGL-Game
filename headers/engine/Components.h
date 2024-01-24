@@ -7,11 +7,20 @@
 
 class CTransform {
 public:
-	glm::vec3 pos;
-	glm::vec3 scale;
+	glm::vec3 pos = glm::vec3(0.0f);
+	glm::vec3 scale = glm::vec3(1.0f);
 	bool has = false;
 
-	CTransform(){}
+	//CTransform(){}
+};
+
+
+class CColor {
+public:
+	glm::vec3 color = glm::vec3(0.0f);
+	bool has = false;
+
+	//CColor(){}
 };
 
 class CInput {
@@ -21,6 +30,6 @@ class CInput {
 	bool right = false;
 	bool has = false;
 
-	CInput(){}
+	//CInput(){}
 };
 #endif
