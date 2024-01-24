@@ -24,28 +24,27 @@ void EntityManager::update() {
 	}
 }
 
-Entity* EntityManager::addEntity(const Entities::ID& tag) {
-	std::unique_ptr<Entity> entity(
+std::shared_ptr<Entity>& EntityManager::addEntity(const Entities::ID& tag) {
+	std::shared_ptr<Entity> entity(
 		new Entity(tag, m_TotalEntities++));
-	Entity* ePtr = entity.get();
-	m_ToAdd.push_back(std::move(entity));
+	m_ToAdd.push_back(entity);
 
-	return ePtr;
+	return entity;
 }
 
-void EntityManager::removeDeadEntities(RefEntityVec& v) {
+void EntityManager::removeDeadEntities(EntityVec& v) {
 	v.erase(
 		std::remove_if(v.begin(), v.end(),
-			[&](std::unique_ptr<Entity> obj) {
+			[&](std::shared_ptr<Entity> obj) {
 				return obj->IsActive() == false;
 			}),
 			v.end());
 }
 
-EntityManager::RefEntityVec& EntityManager::getEntities() {
+EntityManager::EntityVec& EntityManager::getEntities() {
 	return m_Entities;
 }
 
-EntityManager::RefEntityVec& EntityManager::getEntities(const Entities::ID& tag) {
+EntityManager::EntityVec& EntityManager::getEntities(const Entities::ID& tag) {
 	return m_EntityMap[tag];
 }

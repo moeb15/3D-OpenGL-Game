@@ -7,12 +7,11 @@
 
 class EntityManager {
 public:
-	typedef std::vector<std::unique_ptr<Entity>> EntityVec;
-	typedef std::vector<std::unique_ptr<Entity>&> RefEntityVec;
-	typedef std::unordered_map<Entities::ID, RefEntityVec> EntityMap;
+	typedef std::vector<std::shared_ptr<Entity>> EntityVec;
+	typedef std::unordered_map<Entities::ID, EntityVec> EntityMap;
 
 private:
-	RefEntityVec m_Entities;
+	EntityVec m_Entities;
 	EntityMap m_EntityMap;
 	EntityVec m_ToAdd;
 	std::size_t m_TotalEntities;
@@ -23,10 +22,10 @@ public:
 	EntityManager();
 	
 	void update();
-	void removeDeadEntities(RefEntityVec& v);
-	Entity* addEntity(const Entities::ID& tag);
-	RefEntityVec& getEntities();
-	RefEntityVec& getEntities(const Entities::ID& tag);
+	void removeDeadEntities(EntityVec& v);
+	std::shared_ptr<Entity>& addEntity(const Entities::ID& tag);
+	EntityVec& getEntities();
+	EntityVec& getEntities(const Entities::ID& tag);
 
 };
 
