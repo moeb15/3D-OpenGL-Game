@@ -1,0 +1,6 @@
+examples/
+graphics/
+*sln
+*vcxproj*
+.vs/
+Debug/
