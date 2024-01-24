@@ -7,9 +7,9 @@
 #include <memory>
 #include <string>
 
-typedef std::tuple<CTransform, CInput> ComponentTuple;
-
 class EntityManager;
+
+typedef std::tuple<CTransform, CInput, CColor> ComponentTuple;
 
 class Entity {
 	friend class EntityManager;
@@ -25,7 +25,7 @@ public:
 	void destroy();
 	bool IsActive() const;
 	const Entities::ID& tag() const;
-	const std::size_t& id() const;
+	std::size_t id() const;
 
 	template<typename T, typename... TArgs>
 	void addComponent(TArgs&&... mArgs) {
