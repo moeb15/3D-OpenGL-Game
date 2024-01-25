@@ -13,6 +13,8 @@ namespace CommandTags {
 		Down,
 		Left,
 		Right,
+		Forward,
+		Backward,
 		Select,
 		Quit,
 		Default,
