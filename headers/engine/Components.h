@@ -20,6 +20,12 @@ public:
 	//CTransform(){}
 };
 
+class CBoundingBox {
+public:
+	glm::vec3 size = glm::vec3(1.0);
+	bool has = false;
+};
+
 class CHandle {
 public:
 	//std::unordered_map<ShaderTags::ID, unsigned int> handles;
