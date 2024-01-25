@@ -180,11 +180,20 @@ void GameEngine::run() {
 	glfwTerminate();
 }
 
+void GameEngine::changeScene(Scenes::ID tag, std::shared_ptr<Scene> scene) {
+	m_CurrentScene = tag;
+	if (m_SceneMap.find(tag) != m_SceneMap.end()) {
+		m_SceneMap[tag] = scene;
+	}
+}
+
+std::shared_ptr<Scene>& GameEngine::getCurrentScene() {
+	return m_SceneMap[m_CurrentScene];
+}
 
 Camera& GameEngine::getCamera(){
 	return camera;
 }
-
 
 void GameEngine::freeCamera(GLFWwindow* window, float dt) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -206,12 +215,12 @@ void GameEngine::freeCamera(GLFWwindow* window, float dt) {
 
 void GameEngine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (action == GLFW_PRESS || action == GLFW_RELEASE) {
-		auto kvPair = engine->m_SceneMap[engine->m_CurrentScene]->getCommandMap().find(key);
-		if (kvPair != engine->m_SceneMap[engine->m_CurrentScene]->getCommandMap().end()) {
+		auto kvPair = engine->getCurrentScene()->getCommandMap().find(key);
+		if (kvPair != engine->getCurrentScene()->getCommandMap().end()) {
 			CommandTags::Type cmdType = glfwGetKey(window, key) == GLFW_PRESS ?
 				CommandTags::Start : CommandTags::Stop;
 
-			engine->m_SceneMap[engine->m_CurrentScene]->doCommand(Command(kvPair->second, cmdType));
+			engine->getCurrentScene()->doCommand(Command(kvPair->second, cmdType));
 		}
 	}
 }

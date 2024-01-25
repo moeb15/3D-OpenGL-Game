@@ -31,6 +31,8 @@ public:
 	void run();
 
 	Camera& getCamera();
+	void changeScene(Scenes::ID, std::shared_ptr<Scene>);
+	std::shared_ptr<Scene>& getCurrentScene();
 
 private:
 	void update(float dt);
