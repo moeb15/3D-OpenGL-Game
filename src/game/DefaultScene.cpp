@@ -139,7 +139,7 @@ void DefaultScene::spawnPlayer() {
 	m_Player = m_EM.addEntity(Entities::Player);
 	m_Player->addComponent<CTransform>();
 	m_Player->getComponent<CTransform>().pos = glm::vec3(0, 0, -3);
-	
+		
 	m_Player->addComponent<CBoundingBox>();
 
 	m_Player->addComponent<CInput>();
@@ -219,7 +219,6 @@ void DefaultScene::spawnBoxes(unsigned int boxCount) {
 
 	for (int i = 0; i < boxCount; i++) {
 		auto& box = m_EM.addEntity(Entities::Box);
-		box = m_EM.addEntity(Entities::Player);
 		box->addComponent<CTransform>();
 		box->getComponent<CTransform>().pos = boxPos[i % 4];
 
