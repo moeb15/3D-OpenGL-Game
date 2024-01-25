@@ -2,10 +2,13 @@
 #define GAME_ENGINE_H
 
 #include "ResourceManager.h"
+#include "Scene.h"
+#include "SceneTags.h"
 #include "glad.h"
 #include "Camera.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <unordered_map>
 
 class GameEngine {
 private:
@@ -17,7 +20,9 @@ private:
 	bool m_Start;
 	float m_MouseX;
 	float m_MouseY;
-	
+	Scenes::ID m_CurrentScene;
+	std::unordered_map<Scenes::ID, std::shared_ptr<Scene>> m_SceneMap;
+
 	static GameEngine* engine;
 
 public:
@@ -25,10 +30,13 @@ public:
 
 	void run();
 
-private:
-	void processInput(GLFWwindow* window, float dt);
-	void update(float dt);
+	Camera& getCamera();
 
+private:
+	void update(float dt);
+	void freeCamera(GLFWwindow*, float);
+
+	static void key_callback(GLFWwindow* window, int, int, int, int);
 	static void mouse_callback(GLFWwindow*, double, double);
 	static void resize_callback(GLFWwindow*, int, int);
 };

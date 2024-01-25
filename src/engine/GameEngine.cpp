@@ -1,6 +1,7 @@
 #include "GameEngine.h"
 #include "glad.h"
 #include "Shader.h"
+#include "DefaultScene.h"
 #include <stdexcept>
 #include <cassert>
 
@@ -70,12 +71,19 @@ GameEngine::GameEngine() {
 		throw std::runtime_error("GameEngine failed to create OpenGL window");
 	}
 
+	std::shared_ptr<DefaultScene> dScene(
+		new DefaultScene(this));
+
+	m_CurrentScene = Scenes::Default;
+	m_SceneMap.insert(std::make_pair(Scenes::Default,
+		std::static_pointer_cast<Scene>(dScene)));
+
 	engine = this;
 }
 
 
 void GameEngine::run() {
-	glm::mat4 proj;
+	/*glm::mat4 proj;
 	glm::mat4 view;
 	glm::mat4 model = glm::mat4(1.0);
 
@@ -121,24 +129,25 @@ void GameEngine::run() {
 	glm::vec3 objColor(1.0, 0.0, 0.0);
 
 	lightShader.use();
-	lightShader.setVec3("lightColor", lightColor);
+	lightShader.setVec3("lightColor", lightColor);*/
 
 	glViewport(0, 0, 1280, 720);
 	glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(m_Window, mouse_callback);
+	glfwSetKeyCallback(m_Window, key_callback);
 	glEnable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(m_Window)) {
+		glfwPollEvents();
+		freeCamera(m_Window, m_DT);
 
 		m_CurTime = (float)glfwGetTime();
-		m_DT = m_CurTime - m_LastTime;
+		engine->m_DT = m_CurTime - m_LastTime;
 		m_LastTime = m_CurTime;
-
-		processInput(m_Window, m_DT);
 
 		glClearColor(0.3, 0.3, 0.3, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		shader.use();
+		/*shader.use();
 		shader.setVec3("lightPos", lightPos);
 		shader.setVec3("objColor", objColor);
 		shader.setVec3("lightColor", lightColor);
@@ -162,17 +171,22 @@ void GameEngine::run() {
 		lightShader.setMat4("projection", proj);
 
 		glBindVertexArray(lightVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, 36);*/
 
 		update(m_DT);
 
-		glfwPollEvents();
 		glfwSwapBuffers(m_Window);
 	}
 	glfwTerminate();
 }
 
-void GameEngine::processInput(GLFWwindow* window, float dt) {
+
+Camera& GameEngine::getCamera(){
+	return camera;
+}
+
+
+void GameEngine::freeCamera(GLFWwindow* window, float dt) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, 1);
 	}
@@ -190,8 +204,20 @@ void GameEngine::processInput(GLFWwindow* window, float dt) {
 	}
 }
 
-void GameEngine::update(float dt) {
+void GameEngine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	if (action == GLFW_PRESS || action == GLFW_RELEASE) {
+		auto kvPair = engine->m_SceneMap[engine->m_CurrentScene]->getCommandMap().find(key);
+		if (kvPair != engine->m_SceneMap[engine->m_CurrentScene]->getCommandMap().end()) {
+			CommandTags::Type cmdType = glfwGetKey(window, key) == GLFW_PRESS ?
+				CommandTags::Start : CommandTags::Stop;
 
+			engine->m_SceneMap[engine->m_CurrentScene]->doCommand(Command(kvPair->second, cmdType));
+		}
+	}
+}
+
+void GameEngine::update(float dt) {
+	m_SceneMap[m_CurrentScene]->update(dt);
 }
 
 void GameEngine::resize_callback(GLFWwindow* window, int w, int h) {
