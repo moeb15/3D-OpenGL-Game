@@ -5,6 +5,7 @@ namespace Entities {
 	enum ID {
 		Default,
 		Player,
+		Box,
 	};
 }
 
