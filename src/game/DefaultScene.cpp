@@ -20,6 +20,7 @@ void DefaultScene::init() {
 	registerCommand(GLFW_KEY_DOWN, CommandTags::Backward);
 	registerCommand(GLFW_KEY_SPACE, CommandTags::Jump);
 	registerCommand(GLFW_KEY_T, CommandTags::ToggleCamera);
+	registerCommand(GLFW_KEY_ESCAPE, CommandTags::Quit);
 
 	spawnLightSource();
 	spawnPlayer();
@@ -269,16 +270,20 @@ void DefaultScene::sMovement(float dt) {
 	glm::vec3 playerVel = glm::vec3(0.0f);
 
 	if (input.left == true) {
-		playerVel.x = -5;
+		playerVel.z = -5 * sin(-glm::radians(transform.yaw - 90.f));
+		playerVel.x = -5 * cos(glm::radians(transform.yaw - 90.f));
 	}
 	if (input.right == true) {
-		playerVel.x = 5;
+		playerVel.z = 5 * sin(-glm::radians(transform.yaw - 90.f));
+		playerVel.x = 5 * cos(glm::radians(transform.yaw - 90.f));
 	}
 	if (input.forward == true) {
-		playerVel.z = -5;
+		playerVel.z = -5 * cos(glm::radians(transform.yaw - 90.f));
+		playerVel.x = -5 * sin(glm::radians(transform.yaw - 90.f));
 	}
 	if (input.backward == true) {
-		playerVel.z = 5;
+		playerVel.z = 5 * cos(glm::radians(transform.yaw - 90.f));
+		playerVel.x = 5 * sin(glm::radians(transform.yaw - 90.f));
 	}
 	if (input.jump == true &&
 		transform.vel.y == 0) {
@@ -329,6 +334,9 @@ void DefaultScene::sDoCommand(const Command& cmd){
 		}
 		if (cmd.getName() == CommandTags::ToggleCamera) {
 			m_Engine->toggleCamera();
+		}
+		if (cmd.getName() == CommandTags::Quit) {
+			glfwSetWindowShouldClose(m_Engine->getWindow(), 1);
 		}
 	}
 	else if(cmd.getType() == CommandTags::Stop) {
@@ -383,6 +391,8 @@ void DefaultScene::sRender() {
 	if (!m_Engine->IsCameraFree()) {
 		m_Engine->getCamera().Position = 
 			m_Player->getComponent<CTransform>().pos + glm::vec3(0,1.0,0);
+		m_Player->getComponent<CTransform>().yaw =
+			-m_Engine->getCamera().Yaw;
 	}
 
 	for (auto& e : m_EM.getEntities()) {
@@ -394,6 +404,10 @@ void DefaultScene::sRender() {
 				e->hasComponent<CBoundingBox>()) {
 				model = glm::scale(model, e->getComponent<CTransform>().scale);
 				model = glm::translate(model, e->getComponent<CTransform>().pos);
+				model = glm::rotate(model, glm::radians(
+					e->getComponent<CTransform>().yaw),
+					glm::vec3(0.0, 1.0, 0.0));
+
 				e->getComponent<CShader>().shader.use();
 				e->getComponent<CShader>().shader.setMat4("model", model);
 				e->getComponent<CShader>().shader.setMat4("view", view);
