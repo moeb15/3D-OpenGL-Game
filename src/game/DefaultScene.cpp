@@ -19,6 +19,7 @@ void DefaultScene::init() {
 	registerCommand(GLFW_KEY_UP, CommandTags::Forward);
 	registerCommand(GLFW_KEY_DOWN, CommandTags::Backward);
 	registerCommand(GLFW_KEY_SPACE, CommandTags::Jump);
+	registerCommand(GLFW_KEY_T, CommandTags::ToggleCamera);
 
 	spawnLightSource();
 	spawnPlayer();
@@ -256,7 +257,6 @@ void DefaultScene::buildScene() {
 
 void DefaultScene::update(float dt) {
 	m_EM.update();
-	std::cout << m_Player->getComponent<CState>().state << std::endl;
 
 	sMovement(dt);
 	sCollision();
@@ -327,6 +327,9 @@ void DefaultScene::sDoCommand(const Command& cmd){
 			m_Player->getComponent<CInput>().jump = true;
 			m_Player->getComponent<CState>().state = EntityState::Air;
 		}
+		if (cmd.getName() == CommandTags::ToggleCamera) {
+			m_Engine->toggleCamera();
+		}
 	}
 	else if(cmd.getType() == CommandTags::Stop) {
 		if (cmd.getName() == CommandTags::Left) {
@@ -376,6 +379,11 @@ void DefaultScene::sRender() {
 		fabsf(cos((float)glfwGetTime())),
 		fabsf(sin(cos((float)glfwGetTime())))
 	);
+
+	if (!m_Engine->IsCameraFree()) {
+		m_Engine->getCamera().Position = 
+			m_Player->getComponent<CTransform>().pos + glm::vec3(0,1.0,0);
+	}
 
 	for (auto& e : m_EM.getEntities()) {
 		if (e->tag() != Entities::LightSoruce) {
