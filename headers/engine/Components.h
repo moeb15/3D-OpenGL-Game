@@ -65,6 +65,7 @@ public:
 };
 
 class CGravity {
+public:
 	glm::vec3 gravity = glm::vec3(0, 0.5, 0);
 	bool has = false;
 };
