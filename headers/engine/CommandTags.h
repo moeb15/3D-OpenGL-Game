@@ -18,6 +18,7 @@ namespace CommandTags {
 		Jump,
 		Select,
 		Quit,
+		ToggleCamera,
 		Default,
 	};
 }
