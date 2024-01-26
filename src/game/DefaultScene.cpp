@@ -16,8 +16,8 @@ DefaultScene::DefaultScene(GameEngine* engine):
 void DefaultScene::init() {
 	registerCommand(GLFW_KEY_LEFT, CommandTags::Left);
 	registerCommand(GLFW_KEY_RIGHT, CommandTags::Right);
-	registerCommand(GLFW_KEY_UP, CommandTags::Up);
-	registerCommand(GLFW_KEY_DOWN, CommandTags::Down);
+	registerCommand(GLFW_KEY_UP, CommandTags::Forward);
+	registerCommand(GLFW_KEY_DOWN, CommandTags::Backward);
 
 	spawnLightSource();
 	spawnPlayer();
@@ -272,10 +272,10 @@ void DefaultScene::sMovement(float dt) {
 		playerVel.x = 5;
 	}
 	if (input.forward == true) {
-		playerVel.y = 5;
+		playerVel.z = -5;
 	}
 	if (input.backward == true) {
-		playerVel.y = -5;
+		playerVel.z = 5;
 	}
 	
 	transform.vel = playerVel;
@@ -297,10 +297,10 @@ void DefaultScene::sDoCommand(const Command& cmd){
 		if (cmd.getName() == CommandTags::Right) {
 			m_Player->getComponent<CInput>().right = true;
 		}
-		if (cmd.getName() == CommandTags::Up) {
+		if (cmd.getName() == CommandTags::Forward) {
 			m_Player->getComponent<CInput>().forward = true;
 		}
-		if (cmd.getName() == CommandTags::Down) {
+		if (cmd.getName() == CommandTags::Backward) {
 			m_Player->getComponent<CInput>().backward = true;
 		}
 	}
@@ -311,10 +311,10 @@ void DefaultScene::sDoCommand(const Command& cmd){
 		if (cmd.getName() == CommandTags::Right) {
 			m_Player->getComponent<CInput>().right = false;
 		}
-		if (cmd.getName() == CommandTags::Up) {
+		if (cmd.getName() == CommandTags::Forward) {
 			m_Player->getComponent<CInput>().forward = false;
 		}
-		if (cmd.getName() == CommandTags::Down) {
+		if (cmd.getName() == CommandTags::Backward) {
 			m_Player->getComponent<CInput>().backward = false;
 		}
 	}
