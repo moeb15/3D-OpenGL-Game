@@ -18,6 +18,7 @@ void DefaultScene::init() {
 	registerCommand(GLFW_KEY_RIGHT, CommandTags::Right);
 	registerCommand(GLFW_KEY_UP, CommandTags::Forward);
 	registerCommand(GLFW_KEY_DOWN, CommandTags::Backward);
+	registerCommand(GLFW_KEY_SPACE, CommandTags::Jump);
 
 	spawnLightSource();
 	spawnPlayer();
@@ -139,11 +140,12 @@ void DefaultScene::spawnPlayer() {
 
 	m_Player = m_EM.addEntity(Entities::Player);
 	m_Player->addComponent<CTransform>();
-	m_Player->getComponent<CTransform>().pos = glm::vec3(0, 2.0, 3);
+	m_Player->getComponent<CTransform>().pos = glm::vec3(0, 1.0, 3);
 		
 	m_Player->addComponent<CBoundingBox>();
-
 	m_Player->addComponent<CInput>();
+	m_Player->addComponent<CGravity>();
+	m_Player->addComponent<CState>();
 
 	m_Player->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/vertShader.vert",
 		"assets/shaders/fragShader.frag"));
@@ -254,6 +256,7 @@ void DefaultScene::buildScene() {
 
 void DefaultScene::update(float dt) {
 	m_EM.update();
+	std::cout << m_Player->getComponent<CState>().state << std::endl;
 
 	sMovement(dt);
 	sCollision();
@@ -277,12 +280,29 @@ void DefaultScene::sMovement(float dt) {
 	if (input.backward == true) {
 		playerVel.z = 5;
 	}
+	if (input.jump == true &&
+		transform.vel.y == 0) {
+		playerVel.y = 6;
+	}
+	else {
+		playerVel.y = transform.vel.y;
+	}
 	
 	transform.vel = playerVel;
 
 	for (auto& e : m_EM.getEntities()) {
 		e->getComponent<CTransform>().prevPos =
 			e->getComponent<CTransform>().pos;
+		if (e->hasComponent<CGravity>() && 
+			e->hasComponent<CState>()) {
+			if (e->getComponent<CState>().state == EntityState::Air) {
+				e->getComponent<CTransform>().vel -=
+					e->getComponent<CGravity>().gravity * 0.5f * dt;
+			}
+			else {
+				e->getComponent<CTransform>().vel.y = 0;
+			}
+		}
 
 		e->getComponent<CTransform>().pos +=
 			e->getComponent<CTransform>().vel * dt;
@@ -303,6 +323,10 @@ void DefaultScene::sDoCommand(const Command& cmd){
 		if (cmd.getName() == CommandTags::Backward) {
 			m_Player->getComponent<CInput>().backward = true;
 		}
+		if (cmd.getName() == CommandTags::Jump) {
+			m_Player->getComponent<CInput>().jump = true;
+			m_Player->getComponent<CState>().state = EntityState::Air;
+		}
 	}
 	else if(cmd.getType() == CommandTags::Stop) {
 		if (cmd.getName() == CommandTags::Left) {
@@ -317,19 +341,27 @@ void DefaultScene::sDoCommand(const Command& cmd){
 		if (cmd.getName() == CommandTags::Backward) {
 			m_Player->getComponent<CInput>().backward = false;
 		}
+		if (cmd.getName() == CommandTags::Jump) {
+			m_Player->getComponent<CInput>().jump = false;
+		}
 	}
 }
 
 void DefaultScene::sCollision() {
-	for (auto& e : m_EM.getEntities()) {
-		if (e->tag() == Entities::Player) {
-			continue;
-		}
+	for (auto& e : m_EM.getEntities(Entities::Box)) {
 		glm::vec3 overlap = Physics::GetOverlap(m_Player, e);
 		if (overlap.x > 0 && overlap.y > 0 && overlap.z > 0) {
-			std::cout << e->tag() << " destroyed!" << std::endl;
-			e->destroy();
+			m_Player->getComponent<CTransform>().pos.y += overlap.y;
+			m_Player->getComponent<CBoundingBox>().collide = true;
+			m_Player->getComponent<CState>().state = EntityState::Ground;
+			break;
 		}
+		else {
+			m_Player->getComponent<CBoundingBox>().collide = false;
+		}
+	}
+	if (!m_Player->getComponent<CBoundingBox>().collide) {
+		m_Player->getComponent<CState>().state = EntityState::Air;
 	}
 }
 
