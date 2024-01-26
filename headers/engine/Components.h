@@ -16,6 +16,8 @@ public:
 	glm::vec3 prevPos = glm::vec3(0.0f);
 	glm::vec3 vel = glm::vec3(0.0f);
 	glm::vec3 scale = glm::vec3(1.0f);
+	float pitch = 0;
+	float yaw = 0;
 	bool has = false;
 
 	//CTransform(){}
