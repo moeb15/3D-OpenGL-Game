@@ -58,8 +58,15 @@ public:
 	bool backward = false;
 	bool left = false;
 	bool right = false;
+	bool jump = false;
 	bool has = false;
 
 	//CInput(){}
 };
+
+class CGravity {
+	glm::vec3 gravity = glm::vec3(0, 0.5, 0);
+	bool has = false;
+};
+
 #endif
