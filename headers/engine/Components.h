@@ -3,6 +3,7 @@
 
 #include "Shader.h"
 #include "ShaderTags.h"
+#include "EntityTags.h"
 #include <unordered_map>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -67,6 +68,12 @@ public:
 class CGravity {
 public:
 	glm::vec3 gravity = glm::vec3(0, 0.5, 0);
+	bool has = false;
+};
+
+class CState {
+public:
+	EntityState::ID state = EntityState::None;
 	bool has = false;
 };
 

@@ -10,4 +10,13 @@ namespace Entities {
 	};
 }
 
+
+namespace EntityState {
+	enum ID {
+		Ground,
+		Air,
+		None,
+	};
+}
+
 #endif 
