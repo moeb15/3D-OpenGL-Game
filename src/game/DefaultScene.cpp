@@ -5,6 +5,7 @@
 #include "ShaderTags.h"
 #include "VBO.h"
 #include "Physics.h"
+#include "Utils.h"
 
 DefaultScene::DefaultScene(GameEngine* engine):
 	Scene(engine){
@@ -20,7 +21,7 @@ void DefaultScene::init() {
 
 	spawnLightSource();
 	spawnPlayer();
-	spawnBoxes(4);
+	buildScene();
 }
 
 void DefaultScene::spawnLightSource() {
@@ -66,7 +67,7 @@ void DefaultScene::spawnLightSource() {
 
 	m_LightSource = m_EM.addEntity(Entities::LightSoruce);
 	m_LightSource->addComponent<CTransform>();
-	m_LightSource->getComponent<CTransform>().pos = glm::vec3(1.0, 4.0, 10);
+	m_LightSource->getComponent<CTransform>().pos = glm::vec3(1.0, 15.0, -5);
 	m_LightSource->getComponent<CTransform>().scale = glm::vec3(0.2);
 
 	m_LightSource->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/lightingShader.vert",
@@ -138,7 +139,7 @@ void DefaultScene::spawnPlayer() {
 
 	m_Player = m_EM.addEntity(Entities::Player);
 	m_Player->addComponent<CTransform>();
-	m_Player->getComponent<CTransform>().pos = glm::vec3(0, 0, -3);
+	m_Player->getComponent<CTransform>().pos = glm::vec3(0, 2.0, 3);
 		
 	m_Player->addComponent<CBoundingBox>();
 
@@ -170,7 +171,7 @@ void DefaultScene::spawnPlayer() {
 	glBindVertexArray(0);
 }
 
-void DefaultScene::spawnBoxes(unsigned int boxCount) {
+void DefaultScene::buildScene() {
 	float vertices[] = {
 		// positions // normals // texture coords
 		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
@@ -210,17 +211,17 @@ void DefaultScene::spawnBoxes(unsigned int boxCount) {
 		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
 		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f
 	};
-	glm::vec3 boxPos[] = {
-		glm::vec3(0,2,-3),
-		glm::vec3(0,-2,-3),
-		glm::vec3(2,0,-3),
-		glm::vec3(-2,0,-3),
-	};
 
-	for (int i = 0; i < boxCount; i++) {
+	std::vector<std::vector<int>> positionData = Utils::getSceneVector("assets/scenes/defaultscene.txt");
+
+	for (int i = 0; i < positionData.size(); i++) {
 		auto& box = m_EM.addEntity(Entities::Box);
 		box->addComponent<CTransform>();
-		box->getComponent<CTransform>().pos = boxPos[i % 4];
+		box->getComponent<CTransform>().pos = glm::vec3(
+			positionData[i][0],
+			positionData[i][1],
+			positionData[i][2]
+		);
 
 		box->addComponent<CBoundingBox>();
 
@@ -326,7 +327,8 @@ void DefaultScene::sCollision() {
 		}
 		glm::vec3 overlap = Physics::GetOverlap(m_Player, e);
 		if (overlap.x > 0 && overlap.y > 0 && overlap.z > 0) {
-			std::cout << "Collision Detected!" << std::endl;
+			std::cout << e->tag() << " destroyed!" << std::endl;
+			e->destroy();
 		}
 	}
 }
@@ -336,6 +338,12 @@ void DefaultScene::sRender() {
 	glm::mat4 view = m_Engine->getCamera().GetViewMatrix();
 	glm::mat4 proj = glm::perspective(glm::radians(m_Engine->getCamera().Zoom),
 		1280.f / 720.f, 0.1f, 100.f);
+
+	m_LightSource->getComponent<CColor>().color = glm::vec3(
+		fabsf(sin((float)glfwGetTime())),
+		fabsf(cos((float)glfwGetTime())),
+		fabsf(sin(cos((float)glfwGetTime())))
+	);
 
 	for (auto& e : m_EM.getEntities()) {
 		if (e->tag() != Entities::LightSoruce) {
@@ -361,11 +369,11 @@ void DefaultScene::sRender() {
 					32.f);
 
 				e->getComponent<CShader>().shader.setVec3("light.ambient",
-					glm::vec3(0.2));
+					m_LightSource->getComponent<CColor>().color);
 				e->getComponent<CShader>().shader.setVec3("light.diffuse",
-					glm::vec3(0.5));
+					m_LightSource->getComponent<CColor>().color * glm::vec3(0.5));
 				e->getComponent<CShader>().shader.setVec3("light.specular",
-					glm::vec3(1.0));
+					m_LightSource->getComponent<CColor>().color);
 
 				e->getComponent<CShader>().shader.setVec3("lightPos",
 					m_LightSource->getComponent<CTransform>().pos);

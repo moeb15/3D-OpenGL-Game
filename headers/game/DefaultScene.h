@@ -15,7 +15,7 @@ public:
 
 	virtual void update(float);
 	void spawnPlayer();
-	void spawnBoxes(unsigned int);
+	void buildScene();
 	void spawnLightSource();
 
 	virtual void sDoCommand(const Command&);
