@@ -24,6 +24,7 @@ public:
 class CBoundingBox {
 public:
 	glm::vec3 size = glm::vec3(1.0);
+	bool collide = false;
 	bool has = false;
 };
 
@@ -67,7 +68,7 @@ public:
 
 class CGravity {
 public:
-	glm::vec3 gravity = glm::vec3(0, 0.5, 0);
+	glm::vec3 gravity = glm::vec3(0, 25, 0);
 	bool has = false;
 };
 
