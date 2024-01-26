@@ -13,7 +13,7 @@
 class GameEngine {
 private:
 	GLFWwindow* m_Window;
-	Camera camera = Camera(glm::vec3(0, 0, 3));
+	Camera camera = Camera(glm::vec3(0, 5, 12));
 	float m_DT = 0.0f;
 	float m_LastTime = 0.0f;
 	float m_CurTime = 0.0f;
