@@ -9,7 +9,8 @@ GameEngine* GameEngine::engine = nullptr;
 
 GameEngine::GameEngine() {
 	assert(engine == nullptr);
-
+	
+	m_ToggleCamera = true;
 	m_MouseX = 1280 / 2.f;
 	m_MouseY = 720 / 2.f;
 	
@@ -51,7 +52,10 @@ void GameEngine::run() {
 	glEnable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(m_Window)) {
 		glfwPollEvents();
-		freeCamera(m_Window, m_DT);
+		
+		if (IsCameraFree()) {
+			freeCamera(m_Window, m_DT);
+		}
 
 		m_CurTime = (float)glfwGetTime();
 		engine->m_DT = m_CurTime - m_LastTime;
@@ -65,6 +69,14 @@ void GameEngine::run() {
 		glfwSwapBuffers(m_Window);
 	}
 	glfwTerminate();
+}
+
+void GameEngine::toggleCamera() {
+	m_ToggleCamera = !m_ToggleCamera;
+}
+
+bool GameEngine::IsCameraFree() const {
+	return m_ToggleCamera;
 }
 
 void GameEngine::changeScene(Scenes::ID tag, std::shared_ptr<Scene> scene) {

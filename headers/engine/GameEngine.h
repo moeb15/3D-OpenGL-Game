@@ -22,6 +22,7 @@ private:
 	float m_MouseY;
 	Scenes::ID m_CurrentScene;
 	std::unordered_map<Scenes::ID, std::shared_ptr<Scene>> m_SceneMap;
+	bool m_ToggleCamera;
 
 	static GameEngine* engine;
 
@@ -33,6 +34,8 @@ public:
 	Camera& getCamera();
 	void changeScene(Scenes::ID, std::shared_ptr<Scene>);
 	std::shared_ptr<Scene>& getCurrentScene();
+	void toggleCamera();
+	bool IsCameraFree() const;
 
 private:
 	void update(float dt);
