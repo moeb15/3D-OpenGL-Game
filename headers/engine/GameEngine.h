@@ -32,6 +32,7 @@ public:
 	void run();
 
 	Camera& getCamera();
+	GLFWwindow* getWindow();
 	void changeScene(Scenes::ID, std::shared_ptr<Scene>);
 	std::shared_ptr<Scene>& getCurrentScene();
 	void toggleCamera();

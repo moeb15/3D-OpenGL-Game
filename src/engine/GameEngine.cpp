@@ -90,14 +90,15 @@ std::shared_ptr<Scene>& GameEngine::getCurrentScene() {
 	return m_SceneMap[m_CurrentScene];
 }
 
+GLFWwindow* GameEngine::getWindow() {
+	return m_Window;
+}
+
 Camera& GameEngine::getCamera(){
 	return camera;
 }
 
 void GameEngine::freeCamera(GLFWwindow* window, float dt) {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-		glfwSetWindowShouldClose(window, 1);
-	}
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		camera.ProcessKeyboard(Camera_Movement::FORWARD, dt);
 	}
