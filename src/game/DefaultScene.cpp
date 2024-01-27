@@ -70,14 +70,14 @@ void DefaultScene::spawnLightSource() {
 
 	m_LightSource = m_EM.addEntity(Entities::LightSoruce);
 	m_LightSource->addComponent<CTransform>();
-	m_LightSource->getComponent<CTransform>().pos = glm::vec3(1.0, 50.0, -20);
+	m_LightSource->getComponent<CTransform>().pos = glm::vec3(1.0,20, 0);
 	m_LightSource->getComponent<CTransform>().scale = glm::vec3(0.2);
 
 	m_LightSource->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/lightingShader.vert",
 		"assets/shaders/lightingShader.frag"));
 
 	m_LightSource->addComponent<CColor>();
-	m_LightSource->getComponent<CColor>().color = glm::vec3(1.0);
+	m_LightSource->getComponent<CColor>().color = glm::vec3(0.7,0.7,0.7);
 
 	m_LightSource->addComponent<CHandle>();
 	unsigned int& boxVBO = m_LightSource->getComponent<CHandle>().VBO;
