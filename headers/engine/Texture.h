@@ -13,10 +13,9 @@ public:
 	unsigned int ID;
 
 	Texture(){}
-	~Texture();
+	//~Texture();
 
 	Texture(const char*);
-	void enableTexture(unsigned int, unsigned int, GLenum, GLboolean, GLsizei, const void*);
 	void activate(GLenum);
 };
 
