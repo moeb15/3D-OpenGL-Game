@@ -17,6 +17,7 @@ public:
 
 	// default constructor
 	Shader(){}
+	~Shader();
 
 	// constructor that reads and builds the shader
 	Shader(const char* vertexPath, const char* fragmentPath);;
