@@ -61,7 +61,7 @@ void GameEngine::run() {
 		engine->m_DT = m_CurTime - m_LastTime;
 		m_LastTime = m_CurTime;
 
-		glClearColor(0.3, 0.3, 0.3, 1.0);
+		glClearColor(0.52, 0.8, 0.9, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		update(m_DT);
