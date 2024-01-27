@@ -4,6 +4,7 @@
 #include "Shader.h"
 #include "ShaderTags.h"
 #include "EntityTags.h"
+#include "Texture.h"
 #include <unordered_map>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -54,6 +55,14 @@ public:
 	bool has = false;
 
 	//CColor(){}
+};
+
+class CTexture {
+public:
+	Texture diffuseMap;
+	Texture specularMap;
+	Texture emissionMap;
+	bool has = false;
 };
 
 class CInput {

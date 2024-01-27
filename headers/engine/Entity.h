@@ -12,7 +12,8 @@ class EntityManager;
 typedef std::tuple<CTransform, CInput,
 	CColor, CShader, 
 	CHandle, CBoundingBox,
-	CGravity, CState> ComponentTuple;
+	CGravity, CState,
+	CTexture> ComponentTuple;
 
 class Entity {
 	friend class EntityManager;
