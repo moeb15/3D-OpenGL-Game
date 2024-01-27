@@ -16,6 +16,7 @@ public:
 	~Texture();
 
 	Texture(const char*);
+	void enableTexture(unsigned int, unsigned int, GLenum, GLboolean, GLsizei, const void*);
 	void activate(GLenum);
 };
 

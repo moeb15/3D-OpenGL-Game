@@ -46,3 +46,10 @@ Texture::~Texture() {
 void Texture::activate(GLenum activeTexture) {
 	glActiveTexture(activeTexture);
 }
+
+void Texture::enableTexture(unsigned int index, unsigned int size, GLenum type,
+	GLboolean normalized, GLsizei stride, const void* ptr) {
+
+	glVertexAttribPointer(index, size, type, normalized, stride, ptr);
+	glEnableVertexAttribArray(index);
+}
