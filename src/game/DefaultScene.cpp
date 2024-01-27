@@ -14,10 +14,10 @@ DefaultScene::DefaultScene(GameEngine* engine):
 }
 
 void DefaultScene::init() {
-	registerCommand(GLFW_KEY_LEFT, CommandTags::Left);
-	registerCommand(GLFW_KEY_RIGHT, CommandTags::Right);
-	registerCommand(GLFW_KEY_UP, CommandTags::Forward);
-	registerCommand(GLFW_KEY_DOWN, CommandTags::Backward);
+	registerCommand(GLFW_KEY_A, CommandTags::Left);
+	registerCommand(GLFW_KEY_D, CommandTags::Right);
+	registerCommand(GLFW_KEY_W, CommandTags::Forward);
+	registerCommand(GLFW_KEY_S, CommandTags::Backward);
 	registerCommand(GLFW_KEY_SPACE, CommandTags::Jump);
 	registerCommand(GLFW_KEY_T, CommandTags::ToggleCamera);
 	registerCommand(GLFW_KEY_ESCAPE, CommandTags::Quit);
@@ -70,14 +70,14 @@ void DefaultScene::spawnLightSource() {
 
 	m_LightSource = m_EM.addEntity(Entities::LightSoruce);
 	m_LightSource->addComponent<CTransform>();
-	m_LightSource->getComponent<CTransform>().pos = glm::vec3(1.0, 15.0, -5);
+	m_LightSource->getComponent<CTransform>().pos = glm::vec3(1.0, 50.0, -20);
 	m_LightSource->getComponent<CTransform>().scale = glm::vec3(0.2);
 
 	m_LightSource->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/lightingShader.vert",
 		"assets/shaders/lightingShader.frag"));
 
 	m_LightSource->addComponent<CColor>();
-	m_LightSource->getComponent<CColor>().color = glm::vec3(1.0, 1.0, 1.0);
+	m_LightSource->getComponent<CColor>().color = glm::vec3(1.0);
 
 	m_LightSource->addComponent<CHandle>();
 	unsigned int& boxVBO = m_LightSource->getComponent<CHandle>().VBO;
@@ -151,9 +151,10 @@ void DefaultScene::spawnPlayer() {
 
 	m_Player->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/vertShader.vert",
 		"assets/shaders/fragShader.frag"));
-
-	m_Player->addComponent<CColor>();
-	m_Player->getComponent<CColor>().color = glm::vec3(1.0, 0, 0);
+	
+	m_Player->addComponent<CTexture>();
+	m_Player->getComponent<CTexture>().diffuseMap = ResourceManager::LoadTexture("assets/graphics/container2.png");
+	m_Player->getComponent<CTexture>().specularMap = ResourceManager::LoadTexture("assets/graphics/container2_specular.png");
 
 	m_Player->addComponent<CHandle>();
 	unsigned int& boxVBO = m_Player->getComponent<CHandle>().VBO;
@@ -166,7 +167,12 @@ void DefaultScene::spawnPlayer() {
 		GL_STATIC_DRAW);
 	VBO::BindVBO(GL_ARRAY_BUFFER, boxVBO);
 
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 3; i++) {
+		if (i == 2) {
+			VBO::EnableVBO(i, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+				(void*)(i * 3 * sizeof(float)));
+			break;
+		}
 		VBO::EnableVBO(i, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
 			(void*)(i * 3 * sizeof(float)));
 	}
@@ -232,8 +238,8 @@ void DefaultScene::buildScene() {
 		box->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/vertShader.vert",
 			"assets/shaders/fragShader.frag"));
 
-		box->addComponent<CColor>();
-		box->getComponent<CColor>().color = glm::vec3(0, 0, 1.0);
+		box->addComponent<CTexture>();
+		box->getComponent<CTexture>().diffuseMap = ResourceManager::LoadTexture("assets/graphics/container.jpg");
 
 		box->addComponent<CHandle>();
 		unsigned int& boxVBO = box->getComponent<CHandle>().VBO;
@@ -246,7 +252,12 @@ void DefaultScene::buildScene() {
 			GL_STATIC_DRAW);
 		VBO::BindVBO(GL_ARRAY_BUFFER, boxVBO);
 
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 3; i++) {
+			if (i == 2) {
+				VBO::EnableVBO(i, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+					(void*)(i * 3 * sizeof(float)));
+				break;
+			}
 			VBO::EnableVBO(i, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
 				(void*)(i * 3 * sizeof(float)));
 		}
@@ -269,28 +280,30 @@ void DefaultScene::sMovement(float dt) {
 	auto& transform = m_Player->getComponent<CTransform>();
 	glm::vec3 playerVel = glm::vec3(0.0f);
 
-	if (input.left == true) {
-		playerVel.z = -5 * sin(-glm::radians(transform.yaw - 90.f));
-		playerVel.x = -5 * cos(glm::radians(transform.yaw - 90.f));
-	}
-	if (input.right == true) {
-		playerVel.z = 5 * sin(-glm::radians(transform.yaw - 90.f));
-		playerVel.x = 5 * cos(glm::radians(transform.yaw - 90.f));
-	}
-	if (input.forward == true) {
-		playerVel.z = -5 * cos(glm::radians(transform.yaw - 90.f));
-		playerVel.x = -5 * sin(glm::radians(transform.yaw - 90.f));
-	}
-	if (input.backward == true) {
-		playerVel.z = 5 * cos(glm::radians(transform.yaw - 90.f));
-		playerVel.x = 5 * sin(glm::radians(transform.yaw - 90.f));
-	}
-	if (input.jump == true &&
-		transform.vel.y == 0) {
-		playerVel.y = 6;
-	}
-	else {
-		playerVel.y = transform.vel.y;
+	if (!m_Engine->IsCameraFree()) {
+		if (input.left == true) {
+			playerVel.z = -5 * sin(-glm::radians(transform.yaw - 90.f));
+			playerVel.x = -5 * cos(glm::radians(transform.yaw - 90.f));
+		}
+		if (input.right == true) {
+			playerVel.z = 5 * sin(-glm::radians(transform.yaw - 90.f));
+			playerVel.x = 5 * cos(glm::radians(transform.yaw - 90.f));
+		}
+		if (input.forward == true) {
+			playerVel.z = -5 * cos(glm::radians(transform.yaw - 90.f));
+			playerVel.x = -5 * sin(glm::radians(transform.yaw - 90.f));
+		}
+		if (input.backward == true) {
+			playerVel.z = 5 * cos(glm::radians(transform.yaw - 90.f));
+			playerVel.x = 5 * sin(glm::radians(transform.yaw - 90.f));
+		}
+		if (input.jump == true &&
+			transform.vel.y == 0) {
+			playerVel.y = 6;
+		}
+		else {
+			playerVel.y = transform.vel.y;
+		}
 	}
 	
 	transform.vel = playerVel;
@@ -382,11 +395,11 @@ void DefaultScene::sRender() {
 	glm::mat4 proj = glm::perspective(glm::radians(m_Engine->getCamera().Zoom),
 		1280.f / 720.f, 0.1f, 100.f);
 
-	m_LightSource->getComponent<CColor>().color = glm::vec3(
+	/*m_LightSource->getComponent<CColor>().color = glm::vec3(
 		fabsf(sin((float)glfwGetTime())),
 		fabsf(cos((float)glfwGetTime())),
 		fabsf(sin(cos((float)glfwGetTime())))
-	);
+	);*/
 
 	if (!m_Engine->IsCameraFree()) {
 		m_Engine->getCamera().Position = 
@@ -397,46 +410,49 @@ void DefaultScene::sRender() {
 
 	for (auto& e : m_EM.getEntities()) {
 		if (e->tag() != Entities::LightSoruce) {
-			if (e->hasComponent<CTransform>() &&
-				e->hasComponent<CShader>() &&
-				e->hasComponent<CColor>() &&
-				e->hasComponent<CHandle>() &&
-				e->hasComponent<CBoundingBox>()) {
-				model = glm::scale(model, e->getComponent<CTransform>().scale);
-				model = glm::translate(model, e->getComponent<CTransform>().pos);
-				model = glm::rotate(model, glm::radians(
-					e->getComponent<CTransform>().yaw),
-					glm::vec3(0.0, 1.0, 0.0));
+			model = glm::scale(model, e->getComponent<CTransform>().scale);
+			model = glm::translate(model, e->getComponent<CTransform>().pos);
+			model = glm::rotate(model, glm::radians(
+				e->getComponent<CTransform>().yaw),
+				glm::vec3(0.0, 1.0, 0.0));
 
-				e->getComponent<CShader>().shader.use();
-				e->getComponent<CShader>().shader.setMat4("model", model);
-				e->getComponent<CShader>().shader.setMat4("view", view);
-				e->getComponent<CShader>().shader.setMat4("projection", proj);
+			e->getComponent<CShader>().shader.use();
+			e->getComponent<CShader>().shader.setMat4("model", model);
+			e->getComponent<CShader>().shader.setMat4("view", view);
+			e->getComponent<CShader>().shader.setMat4("projection", proj);
 
-				e->getComponent<CShader>().shader.setVec3("material.ambient",
-					e->getComponent<CColor>().color);
-				e->getComponent<CShader>().shader.setVec3("material.diffuse",
-					e->getComponent<CColor>().color);
-				e->getComponent<CShader>().shader.setVec3("material.specular",
-					glm::vec3(1.0, 1.0, 0.0));
-				e->getComponent<CShader>().shader.setFloat("material.shininess",
-					32.f);
+			if (e->tag() == Entities::Player) {
+				e->getComponent<CTexture>().diffuseMap.activate(GL_TEXTURE0);
+				e->getComponent<CTexture>().specularMap.activate(GL_TEXTURE1);
 
-				e->getComponent<CShader>().shader.setVec3("light.ambient",
-					m_LightSource->getComponent<CColor>().color);
-				e->getComponent<CShader>().shader.setVec3("light.diffuse",
-					m_LightSource->getComponent<CColor>().color * glm::vec3(0.5));
-				e->getComponent<CShader>().shader.setVec3("light.specular",
-					m_LightSource->getComponent<CColor>().color);
-
-				e->getComponent<CShader>().shader.setVec3("lightPos",
-					m_LightSource->getComponent<CTransform>().pos);
-
-				glBindVertexArray(e->getComponent<CHandle>().VAO);
-				glDrawArrays(GL_TRIANGLES, 0, 36);
-
-				model = glm::mat4(1.0);
+				e->getComponent<CShader>().shader.setInt("material.diffuseMap", 0);
+				e->getComponent<CShader>().shader.setInt("material.specularMap", 1);
+				e->getComponent<CShader>().shader.setInt("material.emissionMap", 2);
 			}
+			else {
+				e->getComponent<CTexture>().diffuseMap.activate(GL_TEXTURE0);
+				e->getComponent<CShader>().shader.setInt("material.diffuseMap", 0);
+				e->getComponent<CShader>().shader.setInt("material.specularMap", 1);
+				e->getComponent<CShader>().shader.setInt("material.emissionMap", 2);
+			}
+
+			e->getComponent<CShader>().shader.setFloat("material.shininess",
+				32.f);
+
+			e->getComponent<CShader>().shader.setVec3("light.ambient",
+				m_LightSource->getComponent<CColor>().color);
+			e->getComponent<CShader>().shader.setVec3("light.diffuse",
+				m_LightSource->getComponent<CColor>().color * glm::vec3(0.5));
+			e->getComponent<CShader>().shader.setVec3("light.specular",
+				m_LightSource->getComponent<CColor>().color);
+
+			e->getComponent<CShader>().shader.setVec3("lightPos",
+				m_LightSource->getComponent<CTransform>().pos);
+
+			glBindVertexArray(e->getComponent<CHandle>().VAO);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+
+			model = glm::mat4(1.0);
 		}
 		else {
 			model = glm::scale(model, e->getComponent<CTransform>().scale);
