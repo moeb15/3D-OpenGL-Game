@@ -28,6 +28,7 @@ public:
 class CModel {
 public:
 	Model model;
+	bool has = false;
 
 	CModel(){}
 	CModel(const char* path) :

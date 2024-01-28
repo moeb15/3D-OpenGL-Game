@@ -7,6 +7,7 @@ namespace Entities {
 		Player,
 		Box,
 		LightSoruce,
+		TestModel,
 	};
 }
 
