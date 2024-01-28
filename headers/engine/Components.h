@@ -2,6 +2,7 @@
 #define COMPONENTS_H
 
 #include "Shader.h"
+#include "Model.h"
 #include "ShaderTags.h"
 #include "EntityTags.h"
 #include "Texture.h"
@@ -22,6 +23,15 @@ public:
 	bool has = false;
 
 	//CTransform(){}
+};
+
+class CModel {
+public:
+	Model model;
+
+	CModel(){}
+	CModel(const char* path) :
+		model(Model(path)) {}
 };
 
 class CBoundingBox {

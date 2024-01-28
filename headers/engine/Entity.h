@@ -13,7 +13,7 @@ typedef std::tuple<CTransform, CInput,
 	CColor, CShader, 
 	CHandle, CBoundingBox,
 	CGravity, CState,
-	CTexture> ComponentTuple;
+	CTexture, CModel> ComponentTuple;
 
 class Entity {
 	friend class EntityManager;
