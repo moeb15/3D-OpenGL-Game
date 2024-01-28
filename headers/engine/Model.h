@@ -8,7 +8,9 @@
 
 class Model {
 public:
-	std::vector<Texture> textures_loaded;
+	std::vector<TextureStruct> textures_loaded;
+
+	Model(){}
 
 	Model(const char* path) {
 		loadModel(path);
@@ -24,7 +26,7 @@ private:
 	void loadModel(std::string path);
 	void processNode(aiNode* node, const aiScene* scene);
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-	std::vector<Texture> loadMaterialTextures(aiMaterial* mat,
+	std::vector<TextureStruct> loadMaterialTextures(aiMaterial* mat,
 		aiTextureType type, std::string typeName);
 };
 

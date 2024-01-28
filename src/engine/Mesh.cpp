@@ -2,7 +2,7 @@
 
 
 Mesh::Mesh(std::vector<Vertex> v, std::vector<unsigned int> i,
-	std::vector<Texture> t) :
+	std::vector<TextureStruct> t) :
 	verticies(v),
 	indicies(i),
 	textures(t) {
