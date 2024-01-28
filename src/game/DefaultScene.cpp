@@ -8,7 +8,8 @@
 #include "Utils.h"
 
 DefaultScene::DefaultScene(GameEngine* engine):
-	Scene(engine){
+	Scene(engine),
+	m_DirectionalLight(-0.5,-0.5,-0.5){
 
 	init();
 }
@@ -439,18 +440,27 @@ void DefaultScene::sRender() {
 			e->getComponent<CShader>().shader.setFloat("material.shininess",
 				32.f);
 
-			e->getComponent<CShader>().shader.setVec3("light.ambient",
+			e->getComponent<CShader>().shader.setVec3("pointLight.ambient",
 				m_LightSource->getComponent<CColor>().color);
-			e->getComponent<CShader>().shader.setVec3("light.diffuse",
+			e->getComponent<CShader>().shader.setVec3("pointLight.diffuse",
 				m_LightSource->getComponent<CColor>().color * glm::vec3(0.5));
-			e->getComponent<CShader>().shader.setVec3("light.specular",
+			e->getComponent<CShader>().shader.setVec3("pointLight.specular",
 				m_LightSource->getComponent<CColor>().color);
 
-			e->getComponent<CShader>().shader.setVec3("light.position",
+			e->getComponent<CShader>().shader.setVec3("pointLight.position",
 				m_LightSource->getComponent<CTransform>().pos);
-			e->getComponent<CShader>().shader.setFloat("light.constant", 1.0f);
-			e->getComponent<CShader>().shader.setFloat("light.linear", 0.045f);
-			e->getComponent<CShader>().shader.setFloat("light.quadratic", 0.0075f);
+			e->getComponent<CShader>().shader.setFloat("pointLight.constant", 1.0f);
+			e->getComponent<CShader>().shader.setFloat("pointLight.linear", 0.045f);
+			e->getComponent<CShader>().shader.setFloat("pointLight.quadratic", 0.0075f);
+
+			e->getComponent<CShader>().shader.setVec3("dirLight.direction",
+				m_DirectionalLight);
+			e->getComponent<CShader>().shader.setVec3("dirLight.ambient",
+				m_LightSource->getComponent<CColor>().color * glm::vec3(0.2));
+			e->getComponent<CShader>().shader.setVec3("dirLight.diffuse",
+				m_LightSource->getComponent<CColor>().color * glm::vec3(0.1));
+			e->getComponent<CShader>().shader.setVec3("dirLight.specular",
+				m_LightSource->getComponent<CColor>().color);
 
 			e->getComponent<CShader>().shader.setVec3("lightPos",
 				m_LightSource->getComponent<CTransform>().pos);

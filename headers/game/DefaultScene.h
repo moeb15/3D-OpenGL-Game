@@ -9,6 +9,7 @@ private:
 	EntityManager m_EM;
 	std::shared_ptr<Entity> m_Player;
 	std::shared_ptr<Entity> m_LightSource;
+	glm::vec3 m_DirectionalLight;
 
 public:
 	DefaultScene(GameEngine* gameEngine);
