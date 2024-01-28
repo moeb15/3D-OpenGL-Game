@@ -4,3 +4,8 @@ graphics/
 *vcxproj*
 .vs/
 Debug/
+src/engine/glad.c
+headers/engine/glad.h
+src/engine/stb_image.cpp
+headers/engine/stb_image.h
+headers/engine/khrplatform.h
