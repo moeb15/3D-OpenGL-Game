@@ -25,6 +25,7 @@ void DefaultScene::init() {
 
 	spawnLightSource();
 	spawnPlayer();
+	spawnModel();
 	buildScene();
 }
 
@@ -98,6 +99,16 @@ void DefaultScene::spawnLightSource() {
 
 	VBO::UnBindVBO(GL_ARRAY_BUFFER);
 	glBindVertexArray(0);
+}
+
+void DefaultScene::spawnModel() {
+	m_TestModel = m_EM.addEntity(Entities::TestModel);
+	m_TestModel->addComponent<CTransform>();
+	m_TestModel->getComponent<CTransform>().pos = glm::vec3(1, 3, 0);
+	
+	m_TestModel->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/modelShaders.vert",
+		"assets/shaders/modelShaders.frag"));
+	m_TestModel->addComponent<CModel>("assets/graphics/models/FinalBaseMesh.obj");
 }
 
 void DefaultScene::spawnPlayer() {
@@ -410,7 +421,8 @@ void DefaultScene::sRender() {
 	}
 
 	for (auto& e : m_EM.getEntities()) {
-		if (e->tag() != Entities::LightSoruce) {
+		if (e->tag() == Entities::Box ||
+			e->tag() == Entities::Player) {
 			model = glm::scale(model, e->getComponent<CTransform>().scale);
 			model = glm::translate(model, e->getComponent<CTransform>().pos);
 			model = glm::rotate(model, glm::radians(
@@ -470,7 +482,7 @@ void DefaultScene::sRender() {
 
 			model = glm::mat4(1.0);
 		}
-		else {
+		else if(e->tag() == Entities::LightSoruce){
 			model = glm::scale(model, e->getComponent<CTransform>().scale);
 			model = glm::translate(model, e->getComponent<CTransform>().pos);
 			e->getComponent<CShader>().shader.use();
@@ -484,6 +496,17 @@ void DefaultScene::sRender() {
 			glBindVertexArray(e->getComponent<CHandle>().VAO);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 
+			model = glm::mat4(1.0);
+		}
+		else if(e->tag() == Entities::TestModel){
+			model = glm::translate(model, m_TestModel->getComponent<CTransform>().pos);
+			m_TestModel->getComponent<CShader>().shader.use();
+			m_TestModel->getComponent<CShader>().shader.setMat4("model", model);
+			m_TestModel->getComponent<CShader>().shader.setMat4("view", view);
+			m_TestModel->getComponent<CShader>().shader.setMat4("proj", proj);
+			m_TestModel->getComponent<CModel>().model.Draw(
+				m_TestModel->getComponent<CShader>().shader
+			);
 			model = glm::mat4(1.0);
 		}
 	}
