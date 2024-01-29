@@ -104,11 +104,12 @@ void DefaultScene::spawnLightSource() {
 void DefaultScene::spawnModel() {
 	m_TestModel = m_EM.addEntity(Entities::TestModel);
 	m_TestModel->addComponent<CTransform>();
-	m_TestModel->getComponent<CTransform>().pos = glm::vec3(1, 3, 0);
+	m_TestModel->getComponent<CTransform>().pos = glm::vec3(1.0);
+	m_TestModel->getComponent<CTransform>().scale = glm::vec3(1.0);
 	
 	m_TestModel->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/modelShaders.vert",
 		"assets/shaders/modelShaders.frag"));
-	m_TestModel->addComponent<CModel>("assets/graphics/models/FinalBaseMesh.obj");
+	m_TestModel->addComponent<CModel>(Models::Model("assets/graphics/models/backpack/backpack.obj"));
 }
 
 void DefaultScene::spawnPlayer() {
@@ -435,18 +436,19 @@ void DefaultScene::sRender() {
 			e->getComponent<CShader>().shader.setMat4("projection", proj);
 
 			if (e->tag() == Entities::Player) {
-				e->getComponent<CTexture>().diffuseMap.activate(GL_TEXTURE0);
-				e->getComponent<CTexture>().specularMap.activate(GL_TEXTURE1);
+				e->getComponent<CTexture>().diffuseMap.activate(GL_TEXTURE1);
+				e->getComponent<CTexture>().specularMap.activate(GL_TEXTURE2);
 
-				e->getComponent<CShader>().shader.setInt("material.diffuseMap", 0);
-				e->getComponent<CShader>().shader.setInt("material.specularMap", 1);
-				e->getComponent<CShader>().shader.setInt("material.emissionMap", 2);
+				e->getComponent<CShader>().shader.setInt("material.diffuseMap", 1);
+				e->getComponent<CShader>().shader.setInt("material.specularMap", 2);
+				e->getComponent<CShader>().shader.setInt("material.emissionMap", 3);
 			}
 			else {
-				e->getComponent<CTexture>().diffuseMap.activate(GL_TEXTURE0);
-				e->getComponent<CShader>().shader.setInt("material.diffuseMap", 0);
-				e->getComponent<CShader>().shader.setInt("material.specularMap", 1);
-				e->getComponent<CShader>().shader.setInt("material.emissionMap", 2);
+				e->getComponent<CTexture>().diffuseMap.activate(GL_TEXTURE1);
+				e->getComponent<CTexture>().specularMap.activate(GL_TEXTURE2);
+				e->getComponent<CShader>().shader.setInt("material.diffuseMap", 1);
+				e->getComponent<CShader>().shader.setInt("material.specularMap", 2);
+				e->getComponent<CShader>().shader.setInt("material.emissionMap", 3);
 			}
 
 			e->getComponent<CShader>().shader.setFloat("material.shininess",
@@ -500,10 +502,11 @@ void DefaultScene::sRender() {
 		}
 		else if(e->tag() == Entities::TestModel){
 			model = glm::translate(model, m_TestModel->getComponent<CTransform>().pos);
+			model = glm::scale(model, m_TestModel->getComponent<CTransform>().scale);
 			m_TestModel->getComponent<CShader>().shader.use();
 			m_TestModel->getComponent<CShader>().shader.setMat4("model", model);
 			m_TestModel->getComponent<CShader>().shader.setMat4("view", view);
-			m_TestModel->getComponent<CShader>().shader.setMat4("proj", proj);
+			m_TestModel->getComponent<CShader>().shader.setMat4("projection", proj);
 			m_TestModel->getComponent<CModel>().model.Draw(
 				m_TestModel->getComponent<CShader>().shader
 			);
