@@ -27,12 +27,12 @@ public:
 
 class CModel {
 public:
-	Model model;
+	Models::Model model;
 	bool has = false;
 
 	CModel(){}
-	CModel(const char* path) :
-		model(Model(path)) {}
+	CModel(const Models::Model& model ) :
+		model(model) {}
 };
 
 class CBoundingBox {
