@@ -6,7 +6,7 @@ At the moment the following has been completed,
 * EntityManager factory class for creation and deletion of entities
 * Resource manager for loading shaders and textures
 * Scene abstract class for all game scenes to inherit from
-* Command class for representing input, commands are passed and processed to the currently active scene
+* Command class for representing input, commands are passed to and processed by the currently active scene
 * Physics system, collision detection using AABB
 * Models, models are loaded using Assimp
 * Shader and Texture classes
