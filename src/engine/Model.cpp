@@ -5,42 +5,44 @@
 namespace {
 	unsigned int TextureFromFile(const char* path, const std::string& directory)
 	{
-		std::string filename = std::string(path);
-		filename = directory + '/' + filename;
+		std::string filename = directory + "/" + std::string(path);
 
 		unsigned int textureID;
 		glGenTextures(1, &textureID);
-		
+		glBindTexture(GL_TEXTURE_2D, textureID);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 		stbi_set_flip_vertically_on_load(true);
 
 		int width, height, nrComponents;
 		unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-		if (data)
-		{
+		if (data) {
 			GLenum format;
-			if (nrComponents == 1)
+			switch (nrComponents) {
+			case 1:
 				format = GL_RED;
-			else if (nrComponents == 3)
-				format = GL_RGB;
-			else if (nrComponents == 4)
-				format = GL_RGBA;
+				break;
 
-			glBindTexture(GL_TEXTURE_2D, textureID);
+			case 3:
+				format = GL_RGB;
+				break;
+
+			case 4:
+				format = GL_RGBA;
+				break;
+			}
+
 			glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 			glGenerateMipmap(GL_TEXTURE_2D);
-
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-			stbi_image_free(data);
 		}
-		else
-		{
-			std::cout << "Texture failed to load at path: " << path << std::endl;
-			stbi_image_free(data);
+		else{
+			throw std::runtime_error("Models::Model::TextureFromFile failed to load " + filename);
 		}
+		stbi_image_free(data);
 
 		return textureID;
 	}
