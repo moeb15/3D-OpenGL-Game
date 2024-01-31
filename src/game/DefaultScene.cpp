@@ -161,19 +161,25 @@ void DefaultScene::spawnPlayer() {
 void DefaultScene::spawnBullet(std::shared_ptr<Entity>& originEntity) {
 	auto& originTransform = originEntity->getComponent<CTransform>();
 
-	auto bullet = m_EM.addEntity(Entities::Bullet);
+	auto& bullet = m_EM.addEntity(Entities::Bullet);
 	bullet->addComponent<CTransform>();
-	bullet->getComponent<CTransform>().pos = originTransform.pos;
+	bullet->getComponent<CTransform>().pos = originTransform.pos + glm::vec3(0.0,20.0,0.0);
+	bullet->getComponent<CTransform>().scale = glm::vec3(0.1);
 	bullet->getComponent<CTransform>().yaw = originTransform.yaw;
-	bullet->getComponent<CTransform>().vel.z = -15 * cos(glm::radians(originTransform.yaw - 90.f));
-	bullet->getComponent<CTransform>().vel.x = -15 * sin(glm::radians(originTransform.yaw - 90.f));
+	bullet->getComponent<CTransform>().vel.z = -1000 * cos(glm::radians(originTransform.yaw - 90.f));
+	bullet->getComponent<CTransform>().vel.x = -1000 * sin(glm::radians(originTransform.yaw - 90.f));
+	bullet->getComponent<CTransform>().vel.y = 10;
 
+	bullet->addComponent<CState>();
+	bullet->getComponent<CState>().state = EntityState::Air;
+	bullet->addComponent<CColor>();
+	bullet->getComponent<CColor>().color = glm::vec3(0.0);
 	bullet->addComponent<CGravity>();
 	bullet->addComponent<CLifespan>();
 	bullet->getComponent<CLifespan>().lifespan = 5.f;
 
-	bullet->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/vertShader.vert",
-		"assets/shaders/fragShader.frag"));
+	bullet->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/bulletShader.vert",
+		"assets/shaders/bulletShader.frag"));
 
 	bullet->addComponent<CHandle>();
 	unsigned int& bulletVBO = bullet->getComponent<CHandle>().VBO;
@@ -245,6 +251,7 @@ void DefaultScene::buildScene() {
 void DefaultScene::update(float dt) {
 	m_EM.update();
 
+	sLifespan(dt);
 	sMovement(dt);
 	sCollision();
 	sRender();
@@ -329,9 +336,6 @@ void DefaultScene::sDoCommand(const Command& cmd){
 		if (cmd.getName() == CommandTags::LeftMouseClick) {
 			spawnBullet(m_Player);
 		}
-		//if (cmd.getName() == CommandTags::RightMouseClick) {
-			//spawnBullet(m_Player);
-		//}
 	}
 	else if(cmd.getType() == CommandTags::Stop) {
 		if (cmd.getName() == CommandTags::Left) {
@@ -349,10 +353,19 @@ void DefaultScene::sDoCommand(const Command& cmd){
 		if (cmd.getName() == CommandTags::Jump) {
 			m_Player->getComponent<CInput>().jump = false;
 		}
-		/*if (cmd.getName() == CommandTags::LeftMouseClick) {
+	}
+}
+
+void DefaultScene::sLifespan(float dt) {
+	for (auto& e : m_EM.getEntities()) {
+		if (e->hasComponent<CLifespan>()) {
+			if (e->getComponent<CLifespan>().lifespan <= 0.0f) {
+				e->destroy();
+			}
+			else {
+				e->getComponent<CLifespan>().lifespan -= dt;
+			}
 		}
-		if (cmd.getName() == CommandTags::RightMouseClick) {
-		}*/
 	}
 }
 
@@ -485,6 +498,25 @@ void DefaultScene::sRender() {
 			m_TestModel->getComponent<CModel>().model.Draw(
 				m_TestModel->getComponent<CShader>().shader
 			);
+			model = glm::mat4(1.0);
+		}
+		else if (e->tag() == Entities::Bullet) {
+			model = glm::scale(model, e->getComponent<CTransform>().scale);
+			model = glm::translate(model, e->getComponent<CTransform>().pos);
+			model = glm::rotate(model, glm::radians(
+				e->getComponent<CTransform>().yaw),
+				glm::vec3(0.0, 1.0, 0.0));
+
+			e->getComponent<CShader>().shader.use();
+			e->getComponent<CShader>().shader.setMat4("model",model);
+			e->getComponent<CShader>().shader.setMat4("view",view);
+			e->getComponent<CShader>().shader.setMat4("projection",proj);
+			e->getComponent<CShader>().shader.setVec3("bulletColor",
+				e->getComponent<CColor>().color);
+
+			glBindVertexArray(e->getComponent<CHandle>().VAO);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+
 			model = glm::mat4(1.0);
 		}
 	}

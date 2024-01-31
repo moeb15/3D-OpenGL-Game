@@ -25,6 +25,7 @@ public:
 	virtual void sRender();
 	void sMovement(float);
 	void sCollision();
+	void sLifespan(float);
 
 private:
 	void init();
