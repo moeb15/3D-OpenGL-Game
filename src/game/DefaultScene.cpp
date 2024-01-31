@@ -62,6 +62,8 @@ void DefaultScene::init() {
 	registerCommand(GLFW_KEY_SPACE, CommandTags::Jump);
 	registerCommand(GLFW_KEY_T, CommandTags::ToggleCamera);
 	registerCommand(GLFW_KEY_ESCAPE, CommandTags::Quit);
+	registerCommand(GLFW_MOUSE_BUTTON_1, CommandTags::LeftMouseClick);
+	registerCommand(GLFW_MOUSE_BUTTON_2, CommandTags::RightMouseClick);
 
 	spawnLightSource();
 	spawnPlayer();
@@ -148,6 +150,43 @@ void DefaultScene::spawnPlayer() {
 				(void*)(i * 3 * sizeof(float)));
 			break;
 		}
+		VBO::EnableVBO(i, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+			(void*)(i * 3 * sizeof(float)));
+	}
+
+	VBO::UnBindVBO(GL_ARRAY_BUFFER);
+	glBindVertexArray(0);
+}
+
+void DefaultScene::spawnBullet(std::shared_ptr<Entity>& originEntity) {
+	auto& originTransform = originEntity->getComponent<CTransform>();
+
+	auto bullet = m_EM.addEntity(Entities::Bullet);
+	bullet->addComponent<CTransform>();
+	bullet->getComponent<CTransform>().pos = originTransform.pos;
+	bullet->getComponent<CTransform>().yaw = originTransform.yaw;
+	bullet->getComponent<CTransform>().vel.z = -15 * cos(glm::radians(originTransform.yaw - 90.f));
+	bullet->getComponent<CTransform>().vel.x = -15 * sin(glm::radians(originTransform.yaw - 90.f));
+
+	bullet->addComponent<CGravity>();
+	bullet->addComponent<CLifespan>();
+	bullet->getComponent<CLifespan>().lifespan = 5.f;
+
+	bullet->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/vertShader.vert",
+		"assets/shaders/fragShader.frag"));
+
+	bullet->addComponent<CHandle>();
+	unsigned int& bulletVBO = bullet->getComponent<CHandle>().VBO;
+	unsigned int& bulletVAO = bullet->getComponent<CHandle>().VAO;
+
+	glGenVertexArrays(1, &bulletVAO);
+	glBindVertexArray(bulletVAO);
+
+	VBO::BuildVBO(GL_ARRAY_BUFFER, bulletVBO, vertices, sizeof(vertices),
+		GL_STATIC_DRAW);
+	VBO::BindVBO(GL_ARRAY_BUFFER, bulletVBO);
+
+	for (int i = 0; i < 2; i++) {
 		VBO::EnableVBO(i, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
 			(void*)(i * 3 * sizeof(float)));
 	}
@@ -287,6 +326,12 @@ void DefaultScene::sDoCommand(const Command& cmd){
 		if (cmd.getName() == CommandTags::Quit) {
 			glfwSetWindowShouldClose(m_Engine->getWindow(), 1);
 		}
+		if (cmd.getName() == CommandTags::LeftMouseClick) {
+			spawnBullet(m_Player);
+		}
+		//if (cmd.getName() == CommandTags::RightMouseClick) {
+			//spawnBullet(m_Player);
+		//}
 	}
 	else if(cmd.getType() == CommandTags::Stop) {
 		if (cmd.getName() == CommandTags::Left) {
@@ -304,6 +349,10 @@ void DefaultScene::sDoCommand(const Command& cmd){
 		if (cmd.getName() == CommandTags::Jump) {
 			m_Player->getComponent<CInput>().jump = false;
 		}
+		/*if (cmd.getName() == CommandTags::LeftMouseClick) {
+		}
+		if (cmd.getName() == CommandTags::RightMouseClick) {
+		}*/
 	}
 }
 

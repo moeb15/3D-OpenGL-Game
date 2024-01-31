@@ -28,6 +28,7 @@ public:
 
 private:
 	void init();
+	void spawnBullet(std::shared_ptr<Entity>&);
 };
 
 #endif // !DEFAULT_SCENE_H
