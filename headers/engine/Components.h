@@ -100,4 +100,10 @@ public:
 	bool has = false;
 };
 
+class CLifespan {
+public:
+	float lifespan = 0.f;
+	bool has = false;
+};
+
 #endif

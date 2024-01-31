@@ -8,6 +8,7 @@ namespace Entities {
 		Box,
 		LightSoruce,
 		TestModel,
+		Bullet,
 	};
 }
 
