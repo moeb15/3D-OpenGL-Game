@@ -4,6 +4,10 @@
 #include "Shader.h"
 #include "Texture.h"
 
+namespace Models {
+	class Model;
+}
+
 class ResourceManager {
 public:
 	ResourceManager() = delete;
@@ -13,6 +17,9 @@ public:
 
 	// Loads a texture given an image file path
 	static const Texture& LoadTexture(const char* path);
+
+	// Loads a model given the model file path
+	static Models::Model LoadModel(const char* path);
 };
 
 #endif 
