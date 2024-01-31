@@ -44,6 +44,7 @@ private:
 
 	static void key_callback(GLFWwindow* window, int, int, int, int);
 	static void mouse_callback(GLFWwindow*, double, double);
+	static void mouse_click_callback(GLFWwindow*, int, int, int);
 	static void resize_callback(GLFWwindow*, int, int);
 };
 

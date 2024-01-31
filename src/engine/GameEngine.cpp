@@ -48,6 +48,7 @@ void GameEngine::run() {
 	glViewport(0, 0, 1280, 720);
 	glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(m_Window, mouse_callback);
+	glfwSetMouseButtonCallback(m_Window, mouse_click_callback);
 	glfwSetKeyCallback(m_Window, key_callback);
 	glEnable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(m_Window)) {
@@ -148,4 +149,19 @@ void GameEngine::mouse_callback(GLFWwindow* window, double x, double y) {
 	engine->m_MouseY = ypos;
 	
 	engine->camera.ProcessMouseMovement(xOffset, yOffset);
+}
+
+void GameEngine::mouse_click_callback(GLFWwindow* window, int button, int action, int mods) {
+	if (action == GLFW_PRESS) {
+		auto kvPair = engine->getCurrentScene()->getCommandMap().find(button);
+		if (kvPair != engine->getCurrentScene()->getCommandMap().end()) {
+			engine->getCurrentScene()->doCommand(Command(kvPair->second, CommandTags::Start));
+		}
+	}
+	else if (action == GLFW_RELEASE) {
+		auto kvPair = engine->getCurrentScene()->getCommandMap().find(button);
+		if (kvPair != engine->getCurrentScene()->getCommandMap().end()) {
+			engine->getCurrentScene()->doCommand(Command(kvPair->second, CommandTags::Stop));
+		}
+	}
 }
