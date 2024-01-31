@@ -67,7 +67,7 @@ void DefaultScene::init() {
 
 	spawnLightSource();
 	spawnPlayer();
-	//spawnModel();
+	spawnModel();
 	buildScene();
 }
 
@@ -112,7 +112,7 @@ void DefaultScene::spawnModel() {
 	
 	m_TestModel->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/modelShaders.vert",
 		"assets/shaders/modelShaders.frag"));
-	m_TestModel->addComponent<CModel>(Models::Model("assets/graphics/models/backpack/backpack.obj"));
+	m_TestModel->addComponent<CModel>(ResourceManager::LoadModel("assets/graphics/models/backpack/backpack.obj"));
 }
 
 void DefaultScene::spawnPlayer() {
@@ -163,7 +163,8 @@ void DefaultScene::spawnBullet(std::shared_ptr<Entity>& originEntity) {
 
 	auto& bullet = m_EM.addEntity(Entities::Bullet);
 	bullet->addComponent<CTransform>();
-	bullet->getComponent<CTransform>().pos = originTransform.pos + glm::vec3(0.0,20.0,0.0);
+	// not spawning for origin entity position, needs to be fixed
+	bullet->getComponent<CTransform>().pos = originTransform.pos + glm::vec3(0.0,20.0,0.0); 
 	bullet->getComponent<CTransform>().scale = glm::vec3(0.1);
 	bullet->getComponent<CTransform>().yaw = originTransform.yaw;
 	bullet->getComponent<CTransform>().vel.z = -1000 * cos(glm::radians(originTransform.yaw - 90.f));
@@ -333,8 +334,10 @@ void DefaultScene::sDoCommand(const Command& cmd){
 		if (cmd.getName() == CommandTags::Quit) {
 			glfwSetWindowShouldClose(m_Engine->getWindow(), 1);
 		}
-		if (cmd.getName() == CommandTags::LeftMouseClick) {
-			spawnBullet(m_Player);
+		if (!m_Engine->IsCameraFree()) {
+			if (cmd.getName() == CommandTags::LeftMouseClick) {
+				spawnBullet(m_Player);
+			}
 		}
 	}
 	else if(cmd.getType() == CommandTags::Stop) {
