@@ -67,7 +67,7 @@ void DefaultScene::init() {
 
 	spawnLightSource();
 	spawnPlayer();
-	spawnModel();
+	//spawnModel();
 	buildScene();
 }
 
@@ -168,7 +168,7 @@ void DefaultScene::spawnBullet(std::shared_ptr<Entity>& originEntity) {
 	bullet->getComponent<CTransform>().yaw = originTransform.yaw;
 	bullet->getComponent<CTransform>().vel.z = -1000 * cos(glm::radians(originTransform.yaw - 90.f));
 	bullet->getComponent<CTransform>().vel.x = -1000 * sin(glm::radians(originTransform.yaw - 90.f));
-	bullet->getComponent<CTransform>().vel.y = 10;
+	bullet->getComponent<CTransform>().vel.y = 1000*sin(glm::radians(originTransform.pitch));
 
 	bullet->addComponent<CState>();
 	bullet->getComponent<CState>().state = EntityState::Air;
@@ -407,6 +407,8 @@ void DefaultScene::sRender() {
 			m_Player->getComponent<CTransform>().pos + glm::vec3(0,1.0,0);
 		m_Player->getComponent<CTransform>().yaw =
 			-m_Engine->getCamera().Yaw;
+		m_Player->getComponent<CTransform>().pitch =
+			m_Engine->getCamera().Pitch;
 	}
 
 	for (auto& e : m_EM.getEntities()) {
@@ -417,6 +419,9 @@ void DefaultScene::sRender() {
 			model = glm::rotate(model, glm::radians(
 				e->getComponent<CTransform>().yaw),
 				glm::vec3(0.0, 1.0, 0.0));
+			model = glm::rotate(model, glm::radians(
+				e->getComponent<CTransform>().pitch),
+				glm::vec3(0.0, 0.0, 1.0));
 
 			e->getComponent<CShader>().shader.use();
 			e->getComponent<CShader>().shader.setMat4("model", model);
