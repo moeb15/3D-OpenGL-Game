@@ -20,6 +20,8 @@ namespace CommandTags {
 		Quit,
 		ToggleCamera,
 		Default,
+		LeftMouseClick,
+		RightMouseClick,
 	};
 }
 
