@@ -9,6 +9,7 @@ namespace Entities {
 		LightSoruce,
 		TestModel,
 		Bullet,
+		EntityCount
 	};
 }
 
