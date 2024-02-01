@@ -21,7 +21,8 @@ public:
 	virtual void update(float dt) = 0;
 	virtual void sDoCommand(const Command&) = 0;
 	virtual void sRender() = 0;
-	
+	virtual void addToScene(Entities::ID, glm::vec3) = 0;
+
 	std::unordered_map<int, CommandTags::Name>& getCommandMap();
 	void doCommand(Command);
 	void registerCommand(int, CommandTags::Name);

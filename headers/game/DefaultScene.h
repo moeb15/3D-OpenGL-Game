@@ -18,6 +18,7 @@ public:
 	virtual void update(float);
 	void spawnModel();
 	void spawnPlayer();
+	void spawnBox(const glm::vec3&);
 	void buildScene();
 	void spawnLightSource();
 
@@ -27,6 +28,7 @@ public:
 	void sCollision();
 	void sLifespan(float);
 
+	virtual void addToScene(Entities::ID, glm::vec3);
 private:
 	void init();
 	void spawnBullet(std::shared_ptr<Entity>&);
