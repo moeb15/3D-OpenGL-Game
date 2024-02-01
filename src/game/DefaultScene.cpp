@@ -66,9 +66,18 @@ void DefaultScene::init() {
 	registerCommand(GLFW_MOUSE_BUTTON_2, CommandTags::RightMouseClick);
 
 	spawnLightSource();
+//	spawnBox(glm::vec3(0, 10, 0));
 	spawnPlayer();
-	spawnModel();
+	//spawnModel();
 	buildScene();
+}
+
+void DefaultScene::addToScene(Entities::ID tag, glm::vec3 pos) {
+	switch (tag) {
+	case Entities::Box:
+		spawnBox(pos);
+		break;
+	}
 }
 
 void DefaultScene::spawnLightSource() {
@@ -194,6 +203,44 @@ void DefaultScene::spawnBullet(std::shared_ptr<Entity>& originEntity) {
 	VBO::BindVBO(GL_ARRAY_BUFFER, bulletVBO);
 
 	for (int i = 0; i < 2; i++) {
+		VBO::EnableVBO(i, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+			(void*)(i * 3 * sizeof(float)));
+	}
+
+	VBO::UnBindVBO(GL_ARRAY_BUFFER);
+	glBindVertexArray(0);
+}
+
+void DefaultScene::spawnBox(const glm::vec3& pos) {
+	auto& box = m_EM.addEntity(Entities::Box);
+	box->addComponent<CTransform>();
+	box->getComponent<CTransform>().pos = pos;
+
+	box->addComponent<CBoundingBox>();
+
+	box->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/vertShader.vert",
+		"assets/shaders/fragShader.frag"));
+
+	box->addComponent<CTexture>();
+	box->getComponent<CTexture>().diffuseMap = ResourceManager::LoadTexture("assets/graphics/container.jpg");
+
+	box->addComponent<CHandle>();
+	unsigned int& boxVBO = box->getComponent<CHandle>().VBO;
+	unsigned int& boxVAO = box->getComponent<CHandle>().VAO;
+
+	glGenVertexArrays(1, &boxVAO);
+	glBindVertexArray(boxVAO);
+
+	VBO::BuildVBO(GL_ARRAY_BUFFER, boxVBO, vertices, sizeof(vertices),
+		GL_STATIC_DRAW);
+	VBO::BindVBO(GL_ARRAY_BUFFER, boxVBO);
+
+	for (int i = 0; i < 3; i++) {
+		if (i == 2) {
+			VBO::EnableVBO(i, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+				(void*)(i * 3 * sizeof(float)));
+			break;
+		}
 		VBO::EnableVBO(i, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
 			(void*)(i * 3 * sizeof(float)));
 	}
