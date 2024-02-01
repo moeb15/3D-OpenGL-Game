@@ -52,6 +52,7 @@ void GameEngine::run() {
 	ImGui_ImplOpenGL3_Init("#version 330 core");
 
 	glViewport(0, 0, 1280, 720);
+	glfwSetFramebufferSizeCallback(m_Window, resize_callback);
 	glfwSetMouseButtonCallback(m_Window, mouse_click_callback);
 	glfwSetKeyCallback(m_Window, key_callback);
 	glEnable(GL_DEPTH_TEST);
@@ -76,7 +77,7 @@ void GameEngine::run() {
 		update(m_DT);
 
 		ImGui::Begin("Scene Editor Window");
-		ImGui::Text("Hello fellow traveler!");
+		ImGui::Text("Testing");
 		ImGui::End();
 
 		ImGui::Render();
@@ -158,7 +159,7 @@ void GameEngine::update(float dt) {
 }
 
 void GameEngine::resize_callback(GLFWwindow* window, int w, int h) {
-	
+	glViewport(0, 0, w, h);
 }
 
 void GameEngine::mouse_callback(GLFWwindow* window, double x, double y) {
