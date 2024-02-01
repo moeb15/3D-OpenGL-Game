@@ -45,7 +45,7 @@ public:
 private:
 	void update(float dt);
 	void freeCamera(GLFWwindow*, float);
-	void sceneEditor();
+	void sceneEditor(glm::vec3&, bool&, bool&);
 
 	static void key_callback(GLFWwindow* window, int, int, int, int);
 	static void mouse_callback(GLFWwindow*, double, double);
