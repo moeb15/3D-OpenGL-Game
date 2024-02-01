@@ -44,9 +44,8 @@ GameEngine::GameEngine() {
 
 
 void GameEngine::run() {
+	initPairs();
 	glm::vec3 entityPos;
-	bool isBox = false;
-	bool isLightSource = false;
 
 	glViewport(0, 0, 1280, 720);
 	glfwSetFramebufferSizeCallback(m_Window, resize_callback);
@@ -81,7 +80,7 @@ void GameEngine::run() {
 
 		update(m_DT);
 
-		sceneEditor(entityPos, isBox, isLightSource);
+		sceneEditor(entityPos);
 
 		glfwSwapBuffers(m_Window);
 	}
@@ -92,7 +91,13 @@ void GameEngine::run() {
 	glfwTerminate();
 }
 
-void GameEngine::sceneEditor(glm::vec3& entityPos, bool& isBox, bool& isLightSource) {
+void GameEngine::initPairs() {
+	for (int i = 0; i < Entities::EntityCount; i++) {
+		m_EntityPairs[static_cast<Entities::ID>(i)] = false;
+	}
+}
+
+void GameEngine::sceneEditor(glm::vec3& entityPos) {
 	int w, h;
 	glfwGetWindowSize(m_Window, &w, &h);
 
@@ -109,15 +114,25 @@ void GameEngine::sceneEditor(glm::vec3& entityPos, bool& isBox, bool& isLightSou
 	ImGui::SliderFloat("Z", &entityPos.z, -20.f, 20.f);
 
 	ImGui::Text("Entity Type");
-	ImGui::Checkbox("Box", &isBox);
-	ImGui::Checkbox("LightSource", &isLightSource);
-	if (ImGui::Button("Add")) {
-		if (isBox) {
-			std::cout << "Creating Box" << std::endl;
-			getCurrentScene()->addToScene(Entities::Box, entityPos);
+	for (auto& kvPair : m_EntityPairs) {
+		switch (kvPair.first) {
+		case Entities::Box:
+			ImGui::Checkbox("Box", &kvPair.second);
+			break;
+
+		case Entities::LightSoruce:
+			ImGui::Checkbox("LightSource", &kvPair.second);
+			break;
+
+		default:
+			break;
 		}
-		if (isLightSource) {
-			getCurrentScene()->addToScene(Entities::LightSoruce, entityPos);
+	}
+	if (ImGui::Button("Add")) {
+		for (auto& kvPair : m_EntityPairs) {
+			if (kvPair.second) {
+				getCurrentScene()->addToScene(kvPair.first, entityPos);
+			}
 		}
 	}
 

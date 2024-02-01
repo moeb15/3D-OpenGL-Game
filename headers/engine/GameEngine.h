@@ -27,6 +27,7 @@ private:
 	Scenes::ID m_CurrentScene;
 	std::unordered_map<Scenes::ID, std::shared_ptr<Scene>> m_SceneMap;
 	bool m_ToggleCamera;
+	std::unordered_map<Entities::ID, bool> m_EntityPairs;
 
 	static GameEngine* engine;
 
@@ -45,7 +46,8 @@ public:
 private:
 	void update(float dt);
 	void freeCamera(GLFWwindow*, float);
-	void sceneEditor(glm::vec3&, bool&, bool&);
+	void sceneEditor(glm::vec3&);
+	void initPairs();
 
 	static void key_callback(GLFWwindow* window, int, int, int, int);
 	static void mouse_callback(GLFWwindow*, double, double);
