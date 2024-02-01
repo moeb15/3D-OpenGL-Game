@@ -11,3 +11,4 @@ headers/engine/stb_image.h
 headers/engine/khrplatform.h
 D3D*
 assimp*
+imgui*
