@@ -1,6 +1,10 @@
 #ifndef GAME_ENGINE_H
 #define GAME_ENGINE_H
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #include "ResourceManager.h"
 #include "Scene.h"
 #include "SceneTags.h"

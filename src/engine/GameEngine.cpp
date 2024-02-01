@@ -44,10 +44,14 @@ GameEngine::GameEngine() {
 
 
 void GameEngine::run() {
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
+	ImGui_ImplOpenGL3_Init("#version 330 core");
 
 	glViewport(0, 0, 1280, 720);
-	glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetCursorPosCallback(m_Window, mouse_callback);
 	glfwSetMouseButtonCallback(m_Window, mouse_click_callback);
 	glfwSetKeyCallback(m_Window, key_callback);
 	glEnable(GL_DEPTH_TEST);
@@ -65,10 +69,25 @@ void GameEngine::run() {
 		glClearColor(0.52, 0.8, 0.9, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
 		update(m_DT);
+
+		ImGui::Begin("Scene Editor Window");
+		ImGui::Text("Hello fellow traveler!");
+		ImGui::End();
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(m_Window);
 	}
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+
 	glfwTerminate();
 }
 
@@ -116,6 +135,14 @@ void GameEngine::freeCamera(GLFWwindow* window, float dt) {
 
 void GameEngine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (action == GLFW_PRESS || action == GLFW_RELEASE) {
+		if (key == GLFW_KEY_1) {
+			glfwSetCursorPosCallback(engine->m_Window, mouse_callback);
+			glfwSetInputMode(engine->m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+		else if (key == GLFW_KEY_2) {
+			glfwSetCursorPosCallback(engine->m_Window, NULL);
+			glfwSetInputMode(engine->m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		}
 		auto kvPair = engine->getCurrentScene()->getCommandMap().find(key);
 		if (kvPair != engine->getCurrentScene()->getCommandMap().end()) {
 			CommandTags::Type cmdType = glfwGetKey(window, key) == GLFW_PRESS ?
