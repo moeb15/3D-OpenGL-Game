@@ -77,6 +77,10 @@ void DefaultScene::addToScene(Entities::ID tag, glm::vec3 pos) {
 	case Entities::Box:
 		spawnBox(pos);
 		break;
+
+	case Entities::TestModel:
+		spawnModel(pos);
+		break;
 	}
 }
 
@@ -113,15 +117,15 @@ void DefaultScene::spawnLightSource() {
 	glBindVertexArray(0);
 }
 
-void DefaultScene::spawnModel() {
-	m_TestModel = m_EM.addEntity(Entities::TestModel);
-	m_TestModel->addComponent<CTransform>();
-	m_TestModel->getComponent<CTransform>().pos = glm::vec3(0.0,4.0,0.0);
-	m_TestModel->getComponent<CTransform>().scale = glm::vec3(1.0);
+void DefaultScene::spawnModel(glm::vec3& pos) {
+	std::shared_ptr<Entity> modelEntity = m_EM.addEntity(Entities::TestModel);
+	modelEntity->addComponent<CTransform>();
+	modelEntity->getComponent<CTransform>().pos = pos;
+	modelEntity->getComponent<CTransform>().scale = glm::vec3(1.0);
 	
-	m_TestModel->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/modelShaders.vert",
+	modelEntity->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/modelShaders.vert",
 		"assets/shaders/modelShaders.frag"));
-	m_TestModel->addComponent<CModel>(ResourceManager::LoadModel("assets/graphics/models/backpack/backpack.obj"));
+	modelEntity->addComponent<CModel>(ResourceManager::LoadModel("assets/graphics/models/backpack/backpack.obj"));
 }
 
 void DefaultScene::spawnPlayer() {
@@ -544,14 +548,14 @@ void DefaultScene::sRender() {
 			model = glm::mat4(1.0);
 		}
 		else if(e->tag() == Entities::TestModel){
-			model = glm::translate(model, m_TestModel->getComponent<CTransform>().pos);
-			model = glm::scale(model, m_TestModel->getComponent<CTransform>().scale);
-			m_TestModel->getComponent<CShader>().shader.use();
-			m_TestModel->getComponent<CShader>().shader.setMat4("model", model);
-			m_TestModel->getComponent<CShader>().shader.setMat4("view", view);
-			m_TestModel->getComponent<CShader>().shader.setMat4("projection", proj);
-			m_TestModel->getComponent<CModel>().model.Draw(
-				m_TestModel->getComponent<CShader>().shader
+			model = glm::translate(model, e->getComponent<CTransform>().pos);
+			model = glm::scale(model, e->getComponent<CTransform>().scale);
+			e->getComponent<CShader>().shader.use();
+			e->getComponent<CShader>().shader.setMat4("model", model);
+			e->getComponent<CShader>().shader.setMat4("view", view);
+			e->getComponent<CShader>().shader.setMat4("projection", proj);
+			e->getComponent<CModel>().model.Draw(
+				e->getComponent<CShader>().shader
 			);
 			model = glm::mat4(1.0);
 		}

@@ -16,7 +16,7 @@ public:
 	DefaultScene(GameEngine* gameEngine);
 
 	virtual void update(float);
-	void spawnModel();
+	void spawnModel(glm::vec3&);
 	void spawnPlayer();
 	void spawnBox(const glm::vec3&);
 	void buildScene();
