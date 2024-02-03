@@ -27,6 +27,7 @@ private:
 	Scenes::ID m_CurrentScene;
 	std::unordered_map<Scenes::ID, std::shared_ptr<Scene>> m_SceneMap;
 	bool m_ToggleCamera;
+	bool m_ToggleEditor;
 	std::unordered_map<Entities::ID, bool> m_EntityPairs;
 
 	static GameEngine* engine;
