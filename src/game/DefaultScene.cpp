@@ -140,6 +140,8 @@ void DefaultScene::spawnPlayer() {
 	m_Player->addComponent<CInput>();
 	m_Player->addComponent<CGravity>();
 	m_Player->addComponent<CState>();
+	m_Player->addComponent<CMass>();
+	m_Player->getComponent<CMass>().mass = 10;
 
 	m_Player->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/vertShader.vert",
 		"assets/shaders/fragShader.frag"));
@@ -305,6 +307,8 @@ void DefaultScene::buildScene() {
 void DefaultScene::update(float dt) {
 	m_EM.update();
 
+	std::cout << m_Player->getComponent<CTransform>().vel.y << std::endl;
+
 	if (!m_Paused) {
 		sLifespan(dt);
 		sMovement(dt);
@@ -352,8 +356,14 @@ void DefaultScene::sMovement(float dt) {
 		if (e->hasComponent<CGravity>() && 
 			e->hasComponent<CState>()) {
 			if (e->getComponent<CState>().state == EntityState::Air) {
-				e->getComponent<CTransform>().vel -=
-					e->getComponent<CGravity>().gravity * 0.5f * dt;
+				if (e->getComponent<CTransform>().vel.y * e->getComponent<CTransform>().vel.y >
+					Physics::GetTerminalVelocity(e) && Physics::GetTerminalVelocity(e) > 0.0f) {
+					e->getComponent<CTransform>().vel.y = -sqrt(Physics::GetTerminalVelocity(e));
+				}
+				else {
+					e->getComponent<CTransform>().vel -=
+						e->getComponent<CGravity>().gravity * 0.5f * dt;
+				}
 			}
 			else {
 				e->getComponent<CTransform>().vel.y = 0;
