@@ -65,6 +65,8 @@ void DefaultScene::init() {
 	registerCommand(GLFW_MOUSE_BUTTON_1, CommandTags::LeftMouseClick);
 	registerCommand(GLFW_MOUSE_BUTTON_2, CommandTags::RightMouseClick);
 
+	m_Paused = true;
+
 	spawnLightSource();
 //	spawnBox(glm::vec3(0, 10, 0));
 	spawnPlayer();
@@ -303,8 +305,10 @@ void DefaultScene::buildScene() {
 void DefaultScene::update(float dt) {
 	m_EM.update();
 
-	sLifespan(dt);
-	sMovement(dt);
+	if (!m_Paused) {
+		sLifespan(dt);
+		sMovement(dt);
+	}
 	sCollision();
 	sRender();
 }
@@ -381,6 +385,7 @@ void DefaultScene::sDoCommand(const Command& cmd){
 		}
 		if (cmd.getName() == CommandTags::ToggleCamera) {
 			m_Engine->toggleCamera();
+			m_Paused = !m_Paused;
 		}
 		if (cmd.getName() == CommandTags::Quit) {
 			glfwSetWindowShouldClose(m_Engine->getWindow(), 1);

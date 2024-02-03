@@ -11,6 +11,7 @@ private:
 	std::shared_ptr<Entity> m_LightSource;
 	std::shared_ptr<Entity> m_TestModel;
 	glm::vec3 m_DirectionalLight;
+	bool m_Paused;
 
 public:
 	DefaultScene(GameEngine* gameEngine);
