@@ -106,4 +106,10 @@ public:
 	bool has = false;
 };
 
+class CMass {
+public:
+	float mass = 0.0f;
+	bool has = false;
+};
+
 #endif
