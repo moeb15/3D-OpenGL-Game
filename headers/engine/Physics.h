@@ -14,6 +14,8 @@ public:
 	static glm::vec3 GetOverlap(std::shared_ptr<Entity>&, std::shared_ptr<Entity>&);
 	// returns the overlap of two entities using the previous positions
 	static glm::vec3 GetPreviousOverlap(std::shared_ptr<Entity>&, std::shared_ptr<Entity>&);
+	// returns the terminal velocity of an entity
+	static float GetTerminalVelocity(std::shared_ptr<Entity>&);
 };
 
 #endif

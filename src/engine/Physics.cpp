@@ -46,3 +46,23 @@ glm::vec3 Physics::GetPreviousOverlap(std::shared_ptr<Entity>& e1, std::shared_p
 
 	return glm::vec3(0.0);
 }
+
+float Physics::GetTerminalVelocity(std::shared_ptr<Entity>& e) {
+	if (e->hasComponent<CTransform>() &&
+		e->hasComponent<CMass>() &&
+		e->hasComponent<CGravity>() &&
+		e->hasComponent<CBoundingBox>()) {
+		auto& transform = e->getComponent<CTransform>();
+		float dragCoef = 1.81f;
+		float airDensity = 1.293f;
+
+		float size = e->getComponent<CBoundingBox>().size.length();
+
+		float numerator = 2 * e->getComponent<CMass>().mass 
+				* e->getComponent<CGravity>().gravity.y;
+		float denominator = size * airDensity * dragCoef;
+
+		return numerator / denominator;
+	}
+	return 0.0f;
+}
