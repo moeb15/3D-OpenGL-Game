@@ -39,6 +39,7 @@ public:
 
 	Camera& getCamera();
 	GLFWwindow* getWindow();
+	glm::vec2 getMousePos();
 	void changeScene(Scenes::ID, std::shared_ptr<Scene>);
 	std::shared_ptr<Scene>& getCurrentScene();
 	void toggleCamera();

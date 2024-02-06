@@ -178,6 +178,18 @@ Camera& GameEngine::getCamera(){
 	return camera;
 }
 
+glm::vec2 GameEngine::getMousePos() {
+	double x;
+	double y;
+	int w;
+	int h;
+
+	glfwGetCursorPos(m_Window, &x, &y);
+	glfwGetWindowSize(m_Window, &w, &h);
+
+	return glm::vec2(x / (w / 2.f) - 1, -y / (h / 2.f) - 1);
+}
+
 void GameEngine::freeCamera(GLFWwindow* window, float dt) {
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		camera.ProcessKeyboard(Camera_Movement::FORWARD, dt);
