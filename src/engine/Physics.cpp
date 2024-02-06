@@ -66,3 +66,24 @@ float Physics::GetTerminalVelocity(std::shared_ptr<Entity>& e) {
 	}
 	return 0.0f;
 }
+
+bool Physics::IsInside(glm::vec3 pos, std::shared_ptr<Entity>& e) {
+	if (e->hasComponent<CTransform>() &&
+		e->hasComponent<CBoundingBox>()) {
+		auto& transform = e->getComponent<CTransform>();
+		auto& bbox = e->getComponent<CBoundingBox>();
+
+		glm::vec3 center;
+		center.x = transform.pos.x + bbox.size.x / 2.f;
+		center.y = transform.pos.y + bbox.size.y / 2.f;
+		center.z = transform.pos.z + bbox.size.z / 2.f;
+
+		float dx = fabsf(pos.x - center.x);
+		float dy = fabsf(pos.y - center.y);
+		float dz = fabsf(pos.z - center.z);
+		
+		return (dx <= bbox.size.x / 2.f) && (dy <= bbox.size.y / 2.f) &&
+			(dz <= bbox.size.z / 2.f);
+	}
+	return false;
+}
