@@ -112,4 +112,10 @@ public:
 	bool has = false;
 };
 
+class CDraggable {
+public:
+	bool draggable = false;
+	bool has = false;
+};
+
 #endif

@@ -14,7 +14,8 @@ typedef std::tuple<CTransform, CInput,
 	CHandle, CBoundingBox,
 	CGravity, CState,
 	CTexture, CModel,
-	CLifespan, CMass> ComponentTuple;
+	CLifespan, CMass,
+	CDraggable> ComponentTuple;
 
 class Entity {
 	friend class EntityManager;
