@@ -16,8 +16,9 @@ public:
 	static glm::vec3 GetPreviousOverlap(std::shared_ptr<Entity>&, std::shared_ptr<Entity>&);
 	// returns the terminal velocity of an entity
 	static float GetTerminalVelocity(std::shared_ptr<Entity>&);
-	// returns true if a point is inside an entity
-	static bool IsInside(glm::vec3, std::shared_ptr<Entity>&);
+	// returns true if a ray intersects an entity, takes ray origin, ray end, and an entity as 
+	// parameters
+	static bool RayIntersect(glm::vec3, glm::vec3, std::shared_ptr<Entity>&);
 };
 
 #endif
