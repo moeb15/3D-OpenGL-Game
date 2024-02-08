@@ -28,7 +28,7 @@ public:
 	void sMovement(float);
 	void sCollision();
 	void sLifespan(float);
-
+	void sDraggable();
 	virtual void addToScene(Entities::ID, glm::vec3);
 private:
 	void init();

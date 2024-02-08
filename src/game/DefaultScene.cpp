@@ -6,6 +6,7 @@
 #include "VBO.h"
 #include "Physics.h"
 #include "Utils.h"
+#include "RayCaster.h"
 
 float vertices[] = {
 	// positions // normals // texture coords
@@ -307,8 +308,6 @@ void DefaultScene::buildScene() {
 void DefaultScene::update(float dt) {
 	m_EM.update();
 
-	std::cout << m_Player->getComponent<CTransform>().vel.y << std::endl;
-
 	if (!m_Paused) {
 		sLifespan(dt);
 		sMovement(dt);
@@ -405,6 +404,25 @@ void DefaultScene::sDoCommand(const Command& cmd){
 				spawnBullet(m_Player);
 			}
 		}
+		else {
+			if (cmd.getName() == CommandTags::LeftMouseClick) {
+				glm::mat4 view = m_Engine->getCamera().GetViewMatrix();
+				glm::mat4 proj = glm::perspective(glm::radians(m_Engine->getCamera().Zoom),
+					1280.f / 720.f, 0.1f, 100.f);
+
+				auto data = RayCast::ScreenPosToWorldRay(m_Engine->getMousePos(), proj, view);
+				glm::vec3 mousePos3D = data[0] + data[1] * 50.f;
+
+				for (auto& e : m_EM.getEntities()) {
+					auto& transform = e->getComponent<CTransform>();
+					auto& bbox = e->getComponent<CBoundingBox>();
+				
+					if (Physics::RayIntersect(data[0], data[1], e)) {
+						std::cout << "Entity " + std::to_string(e->id()) + " Clicked!" << std::endl;
+					}
+				}
+			}
+		}
 	}
 	else if(cmd.getType() == CommandTags::Stop) {
 		if (cmd.getName() == CommandTags::Left) {
@@ -458,6 +476,8 @@ void DefaultScene::sCollision() {
 		m_Player->getComponent<CState>().state = EntityState::Air;
 	}
 }
+
+void DefaultScene::sDraggable(){}
 
 void DefaultScene::sRender() {
 	glm::mat4 model = glm::mat4(1.0);
