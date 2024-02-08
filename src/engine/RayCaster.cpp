@@ -1,5 +1,5 @@
 #include "RayCaster.h"
-
+#include <iostream>
 
 std::vector<glm::vec3> RayCast::ScreenPosToWorldRay(glm::vec2 mousePos, glm::mat4 proj, glm::mat4 view) {
 	glm::mat4 invProjView = glm::inverse(proj * view);
@@ -22,19 +22,15 @@ std::vector<glm::vec3> RayCast::ScreenPosToWorldRay(glm::vec2 mousePos, glm::mat
 	return data;
 }
 
-bool RayCast::RayContainsPoint(glm::vec3 point, glm::vec3 rayStart, glm::vec3 rayEnd, float errX,
-	float errY, float errZ) {
+bool RayCast::RayIntersect(glm::vec3 point, glm::vec3 rayStart, glm::vec3 rayEnd) {
+	glm::vec3 ray = rayEnd;
+//	ray = glm::normalize(ray);
 	glm::vec3 rayStartToPoint = point - rayStart;
-	glm::vec3 ray = rayEnd - rayStart;
-	if (rayStartToPoint.length <= ray.length) {
-		rayStartToPoint = glm::normalize(rayStartToPoint);
-		ray = glm::normalize(ray);
-		
-		float dx = fabsf(ray.x - rayStartToPoint.x);
-		float dy = fabsf(ray.y - rayStartToPoint.y);
-		float dz = fabsf(ray.z - rayStartToPoint.z);
+//	rayStartToPoint = glm::normalize(rayStartToPoint);
 
-		return (dx <= errX) && (dy <= errY) && (dz <= errZ);
-	}
-	return false;
+	float rayLenSq = glm::dot(ray, ray);
+	float rayDotPoint = glm::dot(rayStartToPoint, ray);
+	float t = rayDotPoint / rayLenSq;
+
+	return (t >= 0) && (t <= 1);
 }

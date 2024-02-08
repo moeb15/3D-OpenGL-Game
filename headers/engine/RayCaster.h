@@ -14,7 +14,7 @@ public:
 	static std::vector<glm::vec3> ScreenPosToWorldRay(glm::vec2, glm::mat4, glm::mat4);
 	// returns whether a point lies along a ray given the point, ray origin, ray end point, and 3 error bounds for 
 	// the x, y , and z direction
-	static bool RayContainsPoint(glm::vec3, glm::vec3, glm::vec3, float, float, float);
+	static bool RayIntersect(glm::vec3, glm::vec3, glm::vec3);
 
 };
 
