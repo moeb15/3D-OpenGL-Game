@@ -410,12 +410,21 @@ void DefaultScene::sDoCommand(const Command& cmd){
 				glm::mat4 proj = glm::perspective(glm::radians(m_Engine->getCamera().Zoom),
 					1280.f / 720.f, 0.1f, 100.f);
 
-				auto data = RayCast::ScreenPosToWorldRay(glm::vec2(0.0f), proj, view);
+				auto rayData = RayCast::ScreenPosToWorldRay(glm::vec2(0.0f), proj, view);
+				float minDist = std::numeric_limits<float>::max();
+				float prevDist = minDist;
+				int curID = -1;
 
 				for (auto& e : m_EM.getEntities()) {
-					if (Physics::RayIntersect(data[0], data[1], e)) {
-						std::cout << "Entity " + std::to_string(e->id()) + " Clicked!" << std::endl;
+					if (Physics::RayIntersect(rayData[0], rayData[1], e, minDist)) {
+						if (minDist < prevDist) {
+							curID = e->id();
+						}
+						prevDist = minDist;
 					}
+				}
+				if (curID != -1) {
+					std::cout << "Entity " << curID << " Clicked!" << std::endl;
 				}
 			}
 		}
