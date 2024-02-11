@@ -226,12 +226,13 @@ void DefaultScene::spawnBox(const glm::vec3& pos) {
 	box->getComponent<CTransform>().pos = pos;
 
 	box->addComponent<CBoundingBox>();
-
+	box->addComponent<CDraggable>();
 	box->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/vertShader.vert",
 		"assets/shaders/fragShader.frag"));
 
 	box->addComponent<CTexture>();
 	box->getComponent<CTexture>().diffuseMap = ResourceManager::LoadTexture("assets/graphics/container.jpg");
+	box->getComponent<CTexture>().emissionMap = ResourceManager::LoadTexture("assets/graphics/matrix.jpg");
 
 	box->addComponent<CHandle>();
 	unsigned int& boxVBO = box->getComponent<CHandle>().VBO;
@@ -272,7 +273,7 @@ void DefaultScene::buildScene() {
 		);
 
 		box->addComponent<CBoundingBox>();
-
+		box->addComponent<CDraggable>();
 		box->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/vertShader.vert",
 			"assets/shaders/fragShader.frag"));
 
@@ -312,6 +313,7 @@ void DefaultScene::update(float dt) {
 		sLifespan(dt);
 		sMovement(dt);
 	}
+	sDraggable();
 	sCollision();
 	sRender();
 }
@@ -425,6 +427,17 @@ void DefaultScene::sDoCommand(const Command& cmd){
 				}
 				if (curID != -1) {
 					std::cout << "Entity " << curID << " Clicked!" << std::endl;
+					for(auto& e : m_EM.getEntities()){
+						if (e->id() != curID) {
+							continue;
+						}
+						else {
+							if (e->hasComponent<CDraggable>()) {
+								e->getComponent<CDraggable>().draggable =
+									!e->getComponent<CDraggable>().draggable;
+							}
+						}
+					}
 				}
 			}
 		}
@@ -482,7 +495,17 @@ void DefaultScene::sCollision() {
 	}
 }
 
-void DefaultScene::sDraggable(){}
+void DefaultScene::sDraggable(){
+	for (auto& e : m_EM.getEntities()) {
+		if (e->hasComponent<CDraggable>()) {
+			if (e->getComponent<CDraggable>().draggable) {
+				e->getComponent<CTransform>().pos =
+					m_Engine->getCamera().Position
+					+ m_Engine->getCamera().Front * 5.f;
+			}
+		}
+	}
+}
 
 void DefaultScene::sRender() {
 	glm::mat4 model = glm::mat4(1.0);
@@ -533,6 +556,14 @@ void DefaultScene::sRender() {
 			else {
 				e->getComponent<CTexture>().diffuseMap.activate(GL_TEXTURE1);
 				e->getComponent<CTexture>().specularMap.activate(GL_TEXTURE2);
+				if (e->hasComponent<CDraggable>()) {
+					if (e->getComponent<CDraggable>().draggable) {
+						e->getComponent<CTexture>().emissionMap.activate(GL_TEXTURE3);
+					}
+					else {
+						glBindTexture(GL_TEXTURE3, 0);
+					}
+				}
 				e->getComponent<CShader>().shader.setInt("material.diffuseMap", 1);
 				e->getComponent<CShader>().shader.setInt("material.specularMap", 2);
 				e->getComponent<CShader>().shader.setInt("material.emissionMap", 3);
