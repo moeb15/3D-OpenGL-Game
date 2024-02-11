@@ -67,7 +67,8 @@ float Physics::GetTerminalVelocity(std::shared_ptr<Entity>& e) {
 	return 0.0f;
 }
 
-bool Physics::RayIntersect(glm::vec3 rayStart, glm::vec3 rayDir, std::shared_ptr<Entity>& e) {
+bool Physics::RayIntersect(glm::vec3 rayStart, glm::vec3 rayDir, std::shared_ptr<Entity>& e,
+	float& intersectionDist) {
 	if (e->hasComponent<CTransform>() &&
 		e->hasComponent<CBoundingBox>()) {
 		auto& transform = e->getComponent<CTransform>();
@@ -191,7 +192,7 @@ bool Physics::RayIntersect(glm::vec3 rayStart, glm::vec3 rayDir, std::shared_ptr
 			}
 		}
 
-		std::cout << tMin << std::endl;
+		intersectionDist = tMin;
 		return true;
 	}
 	return false;
