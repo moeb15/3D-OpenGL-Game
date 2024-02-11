@@ -70,11 +70,11 @@ float Physics::GetTerminalVelocity(std::shared_ptr<Entity>& e) {
 bool Physics::RayIntersect(glm::vec3 rayStart, glm::vec3 rayDir, std::shared_ptr<Entity>& e) {
 	if (e->hasComponent<CTransform>() &&
 		e->hasComponent<CBoundingBox>()) {
-		auto transform = e->getComponent<CTransform>();
-		auto bbox = e->getComponent<CBoundingBox>();
+		auto& transform = e->getComponent<CTransform>();
+		auto& bbox = e->getComponent<CBoundingBox>();
 			
 		float tMin = 0.0f;
-		float tMax = 10000.f;
+		float tMax = 100000.0f;
 
 		glm::mat4 model = glm::mat4(1.0);
 		model = glm::scale(model, transform.scale);
@@ -83,14 +83,13 @@ bool Physics::RayIntersect(glm::vec3 rayStart, glm::vec3 rayDir, std::shared_ptr
 		glm::vec3 aabbMax = bbox.size;
 		glm::vec3 aabbMin = aabbMax * -1.f;
 
-		transform.pos = glm::vec3(model * glm::vec4(transform.pos, 1.0));
-		//bbox.size = glm::vec3(model * glm::vec4(bbox.size, 1.0));
-
 		glm::vec3 xAxis = glm::vec3(model[0].x, model[0].y, model[0].z);
 		glm::vec3 yAxis = glm::vec3(model[1].x, model[1].y, model[1].z);
 		glm::vec3 zAxis = glm::vec3(model[2].x, model[2].y, model[2].z);
 
-		glm::vec3 delta = transform.pos - rayStart;
+		glm::vec3 entityWorldPos = glm::vec3(model[3].x, model[3].y, model[3].z);
+
+		glm::vec3 delta = entityWorldPos - rayStart;
 
 		// intersection with planes perpendical to xAxis
 		{
