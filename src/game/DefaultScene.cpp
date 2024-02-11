@@ -410,13 +410,9 @@ void DefaultScene::sDoCommand(const Command& cmd){
 				glm::mat4 proj = glm::perspective(glm::radians(m_Engine->getCamera().Zoom),
 					1280.f / 720.f, 0.1f, 100.f);
 
-				auto data = RayCast::ScreenPosToWorldRay(m_Engine->getMousePos(), proj, view);
-				glm::vec3 mousePos3D = data[0] + data[1] * 50.f;
+				auto data = RayCast::ScreenPosToWorldRay(glm::vec2(0.0f), proj, view);
 
 				for (auto& e : m_EM.getEntities()) {
-					auto& transform = e->getComponent<CTransform>();
-					auto& bbox = e->getComponent<CBoundingBox>();
-				
 					if (Physics::RayIntersect(data[0], data[1], e)) {
 						std::cout << "Entity " + std::to_string(e->id()) + " Clicked!" << std::endl;
 					}

@@ -19,7 +19,7 @@ public:
 	virtual void update(float);
 	void spawnModel(glm::vec3&);
 	void spawnPlayer();
-	void spawnBox(const glm::vec3&);
+	void spawnBox(const glm::vec3&);;
 	void buildScene();
 	void spawnLightSource();
 
