@@ -279,6 +279,7 @@ void DefaultScene::buildScene() {
 
 		box->addComponent<CTexture>();
 		box->getComponent<CTexture>().diffuseMap = ResourceManager::LoadTexture("assets/graphics/container.jpg");
+		box->getComponent<CTexture>().emissionMap = ResourceManager::LoadTexture("assets/graphics/matrix.jpg");
 
 		box->addComponent<CHandle>();
 		unsigned int& boxVBO = box->getComponent<CHandle>().VBO;
@@ -551,7 +552,7 @@ void DefaultScene::sRender() {
 
 				e->getComponent<CShader>().shader.setInt("material.diffuseMap", 1);
 				e->getComponent<CShader>().shader.setInt("material.specularMap", 2);
-				e->getComponent<CShader>().shader.setInt("material.emissionMap", 3);
+				e->getComponent<CShader>().shader.setInt("material.emissionMap", 4);
 			}
 			else {
 				e->getComponent<CTexture>().diffuseMap.activate(GL_TEXTURE1);
@@ -559,14 +560,14 @@ void DefaultScene::sRender() {
 				if (e->hasComponent<CDraggable>()) {
 					if (e->getComponent<CDraggable>().draggable) {
 						e->getComponent<CTexture>().emissionMap.activate(GL_TEXTURE3);
+						e->getComponent<CShader>().shader.setInt("material.emissionMap", 3);
 					}
 					else {
-						glBindTexture(GL_TEXTURE3, 0);
+						e->getComponent<CShader>().shader.setInt("material.emissionMap", 4);
 					}
 				}
 				e->getComponent<CShader>().shader.setInt("material.diffuseMap", 1);
 				e->getComponent<CShader>().shader.setInt("material.specularMap", 2);
-				e->getComponent<CShader>().shader.setInt("material.emissionMap", 3);
 			}
 
 			e->getComponent<CShader>().shader.setFloat("material.shininess",
