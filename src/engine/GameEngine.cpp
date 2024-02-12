@@ -159,6 +159,10 @@ bool GameEngine::IsCameraFree() const {
 	return m_ToggleCamera;
 }
 
+bool GameEngine::IsEditorToggled() const {
+	return m_ToggleEditor;
+}
+
 void GameEngine::changeScene(Scenes::ID tag, std::shared_ptr<Scene> scene) {
 	m_CurrentScene = tag;
 	if (m_SceneMap.find(tag) != m_SceneMap.end()) {

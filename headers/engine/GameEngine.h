@@ -46,6 +46,7 @@ public:
 	std::shared_ptr<Scene>& getCurrentScene();
 	void toggleCamera();
 	bool IsCameraFree() const;
+	bool IsEditorToggled() const;
 
 private:
 	void update(float dt);
