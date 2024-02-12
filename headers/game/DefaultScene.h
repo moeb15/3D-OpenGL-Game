@@ -22,6 +22,7 @@ public:
 	void spawnBox(const glm::vec3&);;
 	void buildScene();
 	void spawnLightSource();
+	void loadResources();
 
 	virtual void sDoCommand(const Command&);
 	virtual void sRender();

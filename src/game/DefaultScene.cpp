@@ -68,6 +68,8 @@ void DefaultScene::init() {
 
 	m_Paused = true;
 
+
+	loadResources();
 	spawnLightSource();
 //	spawnBox(glm::vec3(0, 10, 0));
 	spawnPlayer();
@@ -87,6 +89,31 @@ void DefaultScene::addToScene(Entities::ID tag, glm::vec3 pos) {
 	}
 }
 
+void DefaultScene::loadResources() {
+	// Adding shaders
+	m_Engine->getResources().AddShader(ResourceTags::Shaders::DefaultShader,
+		"assets/shaders/vertShader.vert", "assets/shaders/fragShader.frag");
+
+	m_Engine->getResources().AddShader(ResourceTags::Shaders::LightingShader,
+		"assets/shaders/lightingShader.vert", "assets/shaders/lightingShader.frag");
+
+	m_Engine->getResources().AddShader(ResourceTags::ModelShader,
+		"assets/shaders/modelShaders.vert", "assets/shaders/modelShaders.frag");
+
+	m_Engine->getResources().AddShader(ResourceTags::BulletShader,
+		"assets/shaders/bulletShader.vert", "assets/shaders/bulletShader.frag");
+
+	// Adding textures
+	m_Engine->getResources().AddTexture(ResourceTags::Textures::PlayerDiffuse, "assets/graphics/container2.png");
+	m_Engine->getResources().AddTexture(ResourceTags::Textures::PlayerSpecular, "assets/graphics/container2_specular.png");
+
+	m_Engine->getResources().AddTexture(ResourceTags::Textures::ContainerDiffuse, "assets/graphics/container.jpg");
+	m_Engine->getResources().AddTexture(ResourceTags::Textures::ContainerEmission, "assets/graphics/matrix.jpg");
+
+	// Adding models
+	m_Engine->getResources().AddModel(ResourceTags::Models::DefaultModel, "assets/graphics/models/backpack/backpack.obj");
+}
+
 void DefaultScene::spawnLightSource() {
 
 	m_LightSource = m_EM.addEntity(Entities::LightSoruce);
@@ -94,8 +121,7 @@ void DefaultScene::spawnLightSource() {
 	m_LightSource->getComponent<CTransform>().pos = glm::vec3(0,10, 0);
 	m_LightSource->getComponent<CTransform>().scale = glm::vec3(0.2);
 
-	m_LightSource->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/lightingShader.vert",
-		"assets/shaders/lightingShader.frag"));
+	m_LightSource->addComponent<CShader>(m_Engine->getResources().LoadShader(ResourceTags::Shaders::LightingShader));
 
 	m_LightSource->addComponent<CColor>();
 	m_LightSource->getComponent<CColor>().color = glm::vec3(1.0);
@@ -126,9 +152,8 @@ void DefaultScene::spawnModel(glm::vec3& pos) {
 	modelEntity->getComponent<CTransform>().pos = pos;
 	modelEntity->getComponent<CTransform>().scale = glm::vec3(1.0);
 	
-	modelEntity->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/modelShaders.vert",
-		"assets/shaders/modelShaders.frag"));
-	modelEntity->addComponent<CModel>(ResourceManager::LoadModel("assets/graphics/models/backpack/backpack.obj"));
+	modelEntity->addComponent<CShader>(m_Engine->getResources().LoadShader(ResourceTags::Shaders::ModelShader));
+	modelEntity->addComponent<CModel>(m_Engine->getResources().LoadModel(ResourceTags::Models::DefaultModel));
 }
 
 void DefaultScene::spawnPlayer() {
@@ -144,12 +169,11 @@ void DefaultScene::spawnPlayer() {
 	m_Player->addComponent<CMass>();
 	m_Player->getComponent<CMass>().mass = 10;
 
-	m_Player->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/vertShader.vert",
-		"assets/shaders/fragShader.frag"));
+	m_Player->addComponent<CShader>(m_Engine->getResources().LoadShader(ResourceTags::Shaders::DefaultShader));
 	
 	m_Player->addComponent<CTexture>();
-	m_Player->getComponent<CTexture>().diffuseMap = ResourceManager::LoadTexture("assets/graphics/container2.png");
-	m_Player->getComponent<CTexture>().specularMap = ResourceManager::LoadTexture("assets/graphics/container2_specular.png");
+	m_Player->getComponent<CTexture>().diffuseMap = m_Engine->getResources().LoadTexture(ResourceTags::Textures::PlayerDiffuse);
+	m_Player->getComponent<CTexture>().specularMap = m_Engine->getResources().LoadTexture(ResourceTags::Textures::PlayerSpecular);
 
 	m_Player->addComponent<CHandle>();
 	unsigned int& boxVBO = m_Player->getComponent<CHandle>().VBO;
@@ -179,7 +203,7 @@ void DefaultScene::spawnPlayer() {
 void DefaultScene::spawnBullet(std::shared_ptr<Entity>& originEntity) {
 	auto& originTransform = originEntity->getComponent<CTransform>();
 
-	auto& bullet = m_EM.addEntity(Entities::Bullet);
+	std::shared_ptr<Entity> bullet = m_EM.addEntity(Entities::Bullet);
 	bullet->addComponent<CTransform>();
 	// not spawning for origin entity position, needs to be fixed
 	bullet->getComponent<CTransform>().pos = originTransform.pos + glm::vec3(0.0,20.0,0.0); 
@@ -197,8 +221,7 @@ void DefaultScene::spawnBullet(std::shared_ptr<Entity>& originEntity) {
 	bullet->addComponent<CLifespan>();
 	bullet->getComponent<CLifespan>().lifespan = 5.f;
 
-	bullet->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/bulletShader.vert",
-		"assets/shaders/bulletShader.frag"));
+	bullet->addComponent<CShader>(m_Engine->getResources().LoadShader(ResourceTags::Shaders::BulletShader));
 
 	bullet->addComponent<CHandle>();
 	unsigned int& bulletVBO = bullet->getComponent<CHandle>().VBO;
@@ -221,18 +244,18 @@ void DefaultScene::spawnBullet(std::shared_ptr<Entity>& originEntity) {
 }
 
 void DefaultScene::spawnBox(const glm::vec3& pos) {
-	auto& box = m_EM.addEntity(Entities::Box);
+	std::shared_ptr<Entity> box = m_EM.addEntity(Entities::Box);
 	box->addComponent<CTransform>();
 	box->getComponent<CTransform>().pos = pos;
 
 	box->addComponent<CBoundingBox>();
 	box->addComponent<CDraggable>();
-	box->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/vertShader.vert",
-		"assets/shaders/fragShader.frag"));
+	Shader defaultShader = m_Engine->getResources().LoadShader(ResourceTags::Shaders::DefaultShader);
+	box->addComponent<CShader>(defaultShader);
 
 	box->addComponent<CTexture>();
-	box->getComponent<CTexture>().diffuseMap = ResourceManager::LoadTexture("assets/graphics/container.jpg");
-	box->getComponent<CTexture>().emissionMap = ResourceManager::LoadTexture("assets/graphics/matrix.jpg");
+	box->getComponent<CTexture>().diffuseMap = m_Engine->getResources().LoadTexture(ResourceTags::Textures::ContainerDiffuse);
+	box->getComponent<CTexture>().emissionMap = m_Engine->getResources().LoadTexture(ResourceTags::Textures::ContainerEmission);
 
 	box->addComponent<CHandle>();
 	unsigned int& boxVBO = box->getComponent<CHandle>().VBO;
@@ -264,46 +287,11 @@ void DefaultScene::buildScene() {
 	std::vector<std::vector<int>> positionData = Utils::getSceneVector("assets/scenes/defaultscene.txt");
 
 	for (int i = 0; i < positionData.size(); i++) {
-		auto& box = m_EM.addEntity(Entities::Box);
-		box->addComponent<CTransform>();
-		box->getComponent<CTransform>().pos = glm::vec3(
-			positionData[i][0],
-			positionData[i][1],
-			positionData[i][2]
-		);
-
-		box->addComponent<CBoundingBox>();
-		box->addComponent<CDraggable>();
-		box->addComponent<CShader>(ResourceManager::LoadShader("assets/shaders/vertShader.vert",
-			"assets/shaders/fragShader.frag"));
-
-		box->addComponent<CTexture>();
-		box->getComponent<CTexture>().diffuseMap = ResourceManager::LoadTexture("assets/graphics/container.jpg");
-		box->getComponent<CTexture>().emissionMap = ResourceManager::LoadTexture("assets/graphics/matrix.jpg");
-
-		box->addComponent<CHandle>();
-		unsigned int& boxVBO = box->getComponent<CHandle>().VBO;
-		unsigned int& boxVAO = box->getComponent<CHandle>().VAO;
-
-		glGenVertexArrays(1, &boxVAO);
-		glBindVertexArray(boxVAO);
-
-		VBO::BuildVBO(GL_ARRAY_BUFFER, boxVBO, vertices, sizeof(vertices),
-			GL_STATIC_DRAW);
-		VBO::BindVBO(GL_ARRAY_BUFFER, boxVBO);
-
-		for (int i = 0; i < 3; i++) {
-			if (i == 2) {
-				VBO::EnableVBO(i, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
-					(void*)(i * 3 * sizeof(float)));
-				break;
-			}
-			VBO::EnableVBO(i, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
-				(void*)(i * 3 * sizeof(float)));
-		}
-
-		VBO::UnBindVBO(GL_ARRAY_BUFFER);
-		glBindVertexArray(0);
+		glm::vec3 pos;
+		pos.x = positionData[i][0];
+		pos.y = positionData[i][1];
+		pos.z = positionData[i][2];
+		spawnBox(pos);
 	}
 }
 
