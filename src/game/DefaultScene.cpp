@@ -86,6 +86,10 @@ void DefaultScene::addToScene(Entities::ID tag, glm::vec3 pos) {
 	case Entities::TestModel:
 		spawnModel(pos);
 		break;
+	
+	case Entities::LightSoruce:
+		spawnLightSource(pos);
+		break;
 	}
 }
 
@@ -114,21 +118,26 @@ void DefaultScene::loadResources() {
 	m_Engine->getResources().AddModel(ResourceTags::Models::DefaultModel, "assets/graphics/models/backpack/backpack.obj");
 }
 
-void DefaultScene::spawnLightSource() {
+void DefaultScene::spawnLightSource(const glm::vec3& pos) {
+	m_LightSourceCount++;
+	std::shared_ptr<Entity> lightSourceEntity = m_EM.addEntity(Entities::LightSoruce);
+	lightSourceEntity->addComponent<CTransform>();
+	lightSourceEntity->getComponent<CTransform>().pos = pos;
+	//lightSourceEntity->getComponent<CTransform>().scale = glm::vec3(0.2);
 
-	m_LightSource = m_EM.addEntity(Entities::LightSoruce);
-	m_LightSource->addComponent<CTransform>();
-	m_LightSource->getComponent<CTransform>().pos = glm::vec3(0,10, 0);
-	m_LightSource->getComponent<CTransform>().scale = glm::vec3(0.2);
+	lightSourceEntity->addComponent<CBoundingBox>();
+	lightSourceEntity->getComponent<CBoundingBox>().size *=
+		lightSourceEntity->getComponent<CTransform>().scale;
+	lightSourceEntity->addComponent<CDraggable>();
 
-	m_LightSource->addComponent<CShader>(m_Engine->getResources().LoadShader(ResourceTags::Shaders::LightingShader));
+	lightSourceEntity->addComponent<CShader>(m_Engine->getResources().LoadShader(ResourceTags::Shaders::LightingShader));
 
-	m_LightSource->addComponent<CColor>();
-	m_LightSource->getComponent<CColor>().color = glm::vec3(1.0);
+	lightSourceEntity->addComponent<CColor>();
+	lightSourceEntity->getComponent<CColor>().color = m_LightColor;
 
-	m_LightSource->addComponent<CHandle>();
-	unsigned int& boxVBO = m_LightSource->getComponent<CHandle>().VBO;
-	unsigned int& boxVAO = m_LightSource->getComponent<CHandle>().VAO;
+	lightSourceEntity->addComponent<CHandle>();
+	unsigned int& boxVBO = lightSourceEntity->getComponent<CHandle>().VBO;
+	unsigned int& boxVAO = lightSourceEntity->getComponent<CHandle>().VAO;
 
 	glGenVertexArrays(1, &boxVAO);
 	glBindVertexArray(boxVAO);
@@ -505,6 +514,7 @@ void DefaultScene::sRender() {
 	glm::mat4 proj = glm::perspective(glm::radians(m_Engine->getCamera().Zoom),
 		1280.f / 720.f, 0.1f, 100.f);
 
+	auto& lightSources = m_EM.getEntities(Entities::LightSoruce);
 	/*m_LightSource->getComponent<CColor>().color = glm::vec3(
 		fabsf(sin((float)glfwGetTime())),
 		fabsf(cos((float)glfwGetTime())),
@@ -536,6 +546,7 @@ void DefaultScene::sRender() {
 			e->getComponent<CShader>().shader.setMat4("model", model);
 			e->getComponent<CShader>().shader.setMat4("view", view);
 			e->getComponent<CShader>().shader.setMat4("projection", proj);
+			e->getComponent<CShader>().shader.setInt("lightCount", m_LightSourceCount);
 
 			if (e->tag() == Entities::Player) {
 				e->getComponent<CTexture>().diffuseMap.activate(GL_TEXTURE1);
@@ -564,30 +575,39 @@ void DefaultScene::sRender() {
 			e->getComponent<CShader>().shader.setFloat("material.shininess",
 				32.f);
 
-			e->getComponent<CShader>().shader.setVec3("pointLight.ambient",
-				m_LightSource->getComponent<CColor>().color);
-			e->getComponent<CShader>().shader.setVec3("pointLight.diffuse",
-				m_LightSource->getComponent<CColor>().color * glm::vec3(0.5));
-			e->getComponent<CShader>().shader.setVec3("pointLight.specular",
-				m_LightSource->getComponent<CColor>().color);
+			for (int i = 0; i < m_LightSourceCount; i++) {
+				e->getComponent<CShader>().shader.setVec3(
+					"pointLights[" + std::to_string(i) + "].ambient",
+					m_LightColor);
+				e->getComponent<CShader>().shader.setVec3(
+					"pointLights[" + std::to_string(i) + "].diffuse",
+					m_LightColor * glm::vec3(0.5));
+				e->getComponent<CShader>().shader.setVec3(
+					"pointLights[" + std::to_string(i) + "].specular",
+					m_LightColor);
 
-			e->getComponent<CShader>().shader.setVec3("pointLight.position",
-				m_LightSource->getComponent<CTransform>().pos);
-			e->getComponent<CShader>().shader.setFloat("pointLight.constant", 1.0f);
-			e->getComponent<CShader>().shader.setFloat("pointLight.linear", 0.045f);
-			e->getComponent<CShader>().shader.setFloat("pointLight.quadratic", 0.0075f);
+				e->getComponent<CShader>().shader.setVec3(
+					"pointLights[" + std::to_string(i) + "].position",
+					lightSources[i]->getComponent<CTransform>().pos);
+				e->getComponent<CShader>().shader.setFloat(
+					"pointLights[" + std::to_string(i) + "].constant", 1.0f);
+				e->getComponent<CShader>().shader.setFloat(
+					"pointLights[" + std::to_string(i) + "].linear", 0.045f);
+				e->getComponent<CShader>().shader.setFloat(
+					"pointLights[" + std::to_string(i) + "].quadratic", 0.0032f);
+			}
 
 			e->getComponent<CShader>().shader.setVec3("dirLight.direction",
 				m_DirectionalLight);
 			e->getComponent<CShader>().shader.setVec3("dirLight.ambient",
-				m_LightSource->getComponent<CColor>().color * glm::vec3(0.2));
+				m_LightColor * glm::vec3(0.1));
 			e->getComponent<CShader>().shader.setVec3("dirLight.diffuse",
-				m_LightSource->getComponent<CColor>().color * glm::vec3(0.1));
+				m_LightColor * glm::vec3(0.1));
 			e->getComponent<CShader>().shader.setVec3("dirLight.specular",
-				m_LightSource->getComponent<CColor>().color);
-
+				m_LightColor * glm::vec3(1.0));
+			
 			e->getComponent<CShader>().shader.setVec3("lightPos",
-				m_LightSource->getComponent<CTransform>().pos);
+				m_Engine->getCamera().Position);
 
 			glBindVertexArray(e->getComponent<CHandle>().VAO);
 			glDrawArrays(GL_TRIANGLES, 0, 36);

@@ -1,4 +1,5 @@
 #version 330 core
+#define MAX_LIGHTS 128
 out vec4 FragColor;
 
 struct Material{
@@ -26,8 +27,10 @@ struct PointLight{
 	float quadratic;
 };
 
+uniform int lightCount;
+
 uniform Material material;
-uniform PointLight pointLight;
+uniform PointLight pointLights[MAX_LIGHTS];
 uniform DirLight dirLight;
 
 in vec2 TexCoords;
@@ -40,13 +43,17 @@ vec3 CalcDirLight(DirLight light);
 
 void main(){
 	vec3 emission = vec3(texture(material.emissionMap,TexCoords));
-	vec3 result = CalcDirLight(dirLight) + CalcPointLight(pointLight) + emission;
+	vec3 result = CalcDirLight(dirLight) + emission;
+	
+	for(int i = 0; i < lightCount; i++){
+		result += CalcPointLight(pointLights[i]);
+	}
 
 	FragColor = vec4(result, 1.0);
 }
 
 vec3 CalcPointLight(PointLight light){
-	float distance = length(lPos - fragPos);
+	float distance = length(light.position - fragPos);
 	float attenuation = 1.0 / (light.constant + light.linear * distance 
 			+ light.quadratic * distance * distance);
 
