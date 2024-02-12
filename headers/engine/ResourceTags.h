@@ -15,6 +15,7 @@ namespace ResourceTags {
 		DefaultShader,
 		LightingShader,
 		ModelShader,
+		BulletShader,
 	};
 
 	enum Models {
