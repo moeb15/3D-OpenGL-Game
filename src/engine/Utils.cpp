@@ -1,9 +1,13 @@
 #include "Utils.h"
 
-std::vector<std::vector<int>> Utils::getSceneVector(const char* path) {
+std::unordered_map<Entities::ID, std::vector<std::vector<int>>> 
+	Utils::getSceneVector(const char* path) {
+
 	std::ifstream sceneFile;
 	std::stringstream contents;
-	std::vector<std::vector<int>> data;
+
+	std::unordered_map<Entities::ID, 
+		std::vector<std::vector<int>>> data;
 
 	try {
 		sceneFile.open(path);
@@ -15,15 +19,25 @@ std::vector<std::vector<int>> Utils::getSceneVector(const char* path) {
 	}
 
 	std::string line;
-	std::vector<int> elems;
+	std::vector<std::string> elems;
 
 	while (std::getline(contents, line)) {
 		std::stringstream ss(line);
 		std::string cur;
 		while (std::getline(ss, cur, ' ')) {
-			elems.push_back(std::stoi(cur));
+			elems.push_back(cur);
 		}
-		data.push_back(elems);
+		std::vector<int> temp = {
+				std::stoi(elems[1]),
+				std::stoi(elems[2]),
+				std::stoi(elems[3])
+		};
+		if (elems[0] == "Box") {
+			data[Entities::Box].push_back(temp);
+		}
+		else if (elems[0] == "Light") {
+			data[Entities::LightSoruce].push_back(temp);
+		}
 		elems.clear();
 	}
 
