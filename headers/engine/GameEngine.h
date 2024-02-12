@@ -29,6 +29,7 @@ private:
 	bool m_ToggleCamera;
 	bool m_ToggleEditor;
 	std::unordered_map<Entities::ID, bool> m_EntityPairs;
+	ResourceManager m_Resources;
 
 	static GameEngine* engine;
 
@@ -40,6 +41,7 @@ public:
 	Camera& getCamera();
 	GLFWwindow* getWindow();
 	glm::vec2 getMousePos();
+	ResourceManager& getResources();
 	void changeScene(Scenes::ID, std::shared_ptr<Scene>);
 	std::shared_ptr<Scene>& getCurrentScene();
 	void toggleCamera();

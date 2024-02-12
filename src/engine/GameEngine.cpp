@@ -190,6 +190,10 @@ glm::vec2 GameEngine::getMousePos() {
 	return glm::vec2(x / (w / 2.f) - 1, -y / (h / 2.f) - 1);
 }
 
+ResourceManager& GameEngine::getResources() {
+	return m_Resources;
+}
+
 void GameEngine::freeCamera(GLFWwindow* window, float dt) {
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		camera.ProcessKeyboard(Camera_Movement::FORWARD, dt);
