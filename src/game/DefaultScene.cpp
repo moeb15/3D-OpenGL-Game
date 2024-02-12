@@ -151,6 +151,9 @@ void DefaultScene::spawnModel(glm::vec3& pos) {
 	modelEntity->addComponent<CTransform>();
 	modelEntity->getComponent<CTransform>().pos = pos;
 	modelEntity->getComponent<CTransform>().scale = glm::vec3(1.0);
+	modelEntity->addComponent<CBoundingBox>();
+	modelEntity->getComponent<CBoundingBox>().size = glm::vec3(2, 3, 1);
+	modelEntity->addComponent<CDraggable>();
 	
 	modelEntity->addComponent<CShader>(m_Engine->getResources().LoadShader(ResourceTags::Shaders::ModelShader));
 	modelEntity->addComponent<CModel>(m_Engine->getResources().LoadModel(ResourceTags::Models::DefaultModel));
