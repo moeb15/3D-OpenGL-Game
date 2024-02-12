@@ -70,7 +70,7 @@ void DefaultScene::init() {
 
 
 	loadResources();
-	spawnLightSource();
+//	spawnLightSource();
 //	spawnBox(glm::vec3(0, 10, 0));
 	spawnPlayer();
 	//spawnModel();
@@ -296,14 +296,32 @@ void DefaultScene::spawnBox(const glm::vec3& pos) {
 
 void DefaultScene::buildScene() {
 
-	std::vector<std::vector<int>> positionData = Utils::getSceneVector("assets/scenes/defaultscene.txt");
+	std::unordered_map<Entities::ID, 
+		std::vector<std::vector<int>>> positionData = Utils::getSceneVector("assets/scenes/defaultscene.txt");
+	glm::vec3 pos;
 
-	for (int i = 0; i < positionData.size(); i++) {
-		glm::vec3 pos;
-		pos.x = positionData[i][0];
-		pos.y = positionData[i][1];
-		pos.z = positionData[i][2];
-		spawnBox(pos);
+	for (auto& kvPair : positionData) {
+		switch (kvPair.first) {
+		case Entities::Box:
+			for (int i = 0; i < kvPair.second.size(); i++) {
+				pos.x = kvPair.second[i][0];
+				pos.y = kvPair.second[i][1];
+				pos.z = kvPair.second[i][2];
+
+				spawnBox(pos);
+			}
+			break;
+
+		case Entities::LightSoruce:
+			for (int i = 0; i < kvPair.second.size(); i++) {
+				pos.x = kvPair.second[i][0];
+				pos.y = kvPair.second[i][1];
+				pos.z = kvPair.second[i][2];
+
+				spawnLightSource(pos);
+			}
+			break;
+		}
 	}
 }
 
@@ -407,7 +425,7 @@ void DefaultScene::sDoCommand(const Command& cmd){
 				spawnBullet(m_Player);
 			}
 		}
-		else {
+		else if(!m_Engine->IsEditorToggled()){
 			if (cmd.getName() == CommandTags::LeftMouseClick) {
 				glm::mat4 view = m_Engine->getCamera().GetViewMatrix();
 				glm::mat4 proj = glm::perspective(glm::radians(m_Engine->getCamera().Zoom),
@@ -427,7 +445,7 @@ void DefaultScene::sDoCommand(const Command& cmd){
 					}
 				}
 				if (curID != -1) {
-					std::cout << "Entity " << curID << " Clicked!" << std::endl;
+					//std::cout << "Entity " << curID << " Clicked!" << std::endl;
 					for(auto& e : m_EM.getEntities()){
 						if (e->id() != curID) {
 							continue;
