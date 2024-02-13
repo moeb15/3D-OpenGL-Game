@@ -27,6 +27,7 @@ public:
 	void spawnLightSource(const glm::vec3& pos = glm::vec3(0,10,0));
 	void loadResources();
 
+	virtual EntityManager::EntityVec& getSceneEntities();
 	virtual void sDoCommand(const Command&);
 	virtual void sRender();
 	void sMovement(float);

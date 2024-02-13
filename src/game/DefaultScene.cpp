@@ -55,6 +55,10 @@ DefaultScene::DefaultScene(GameEngine* engine):
 	init();
 }
 
+EntityManager::EntityVec& DefaultScene::getSceneEntities() {
+	return m_EM.getEntities();
+}
+
 void DefaultScene::init() {
 	registerCommand(GLFW_KEY_A, CommandTags::Left);
 	registerCommand(GLFW_KEY_D, CommandTags::Right);
