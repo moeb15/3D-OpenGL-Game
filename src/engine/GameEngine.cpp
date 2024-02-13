@@ -47,12 +47,13 @@ GameEngine::GameEngine() {
 void GameEngine::run() {
 	initPairs();
 	glm::vec3 entityPos;
+	std::string sceneName;
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	ImGui::StyleColorsDark();
+	ImGui::StyleColorsClassic();
 	ImGui_ImplGlfw_InitForOpenGL(m_Window, false);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
@@ -64,7 +65,7 @@ void GameEngine::run() {
 	while (!glfwWindowShouldClose(m_Window)) {
 		glfwPollEvents();
 		
-		if (IsCameraFree()) {
+		if (IsCameraFree() && !io.WantCaptureKeyboard) {
 			freeCamera(m_Window, m_DT);
 		}
 
@@ -82,7 +83,7 @@ void GameEngine::run() {
 		update(m_DT);
 
 		if (m_ToggleEditor) {
-			sceneEditor(entityPos);
+			sceneEditor(entityPos, sceneName);
 		}
 
 		ImGui::Render();
@@ -102,7 +103,7 @@ void GameEngine::initPairs() {
 	}
 }
 
-void GameEngine::sceneEditor(glm::vec3& entityPos) {
+void GameEngine::sceneEditor(glm::vec3& entityPos, std::string& scene) {
 	int w, h;
 	glfwGetWindowSize(m_Window, &w, &h);
 
@@ -142,6 +143,36 @@ void GameEngine::sceneEditor(glm::vec3& entityPos) {
 				getCurrentScene()->addToScene(kvPair.first, entityPos);
 			}
 		}
+	}
+
+	ImGui::Text("Scene Name");
+	ImGui::InputText("Name", &scene, 32);
+	if (ImGui::Button("Save")) {
+		std::ofstream sceneFile("assets/scenes/" + std::string(scene) + ".txt");
+		EntityManager::EntityVec& entities = m_SceneMap[m_CurrentScene]->getSceneEntities();
+		std::string line;
+		for (auto& e : entities) {
+			if (e->hasComponent<CTransform>()) {
+				glm::vec3& pos = e->getComponent<CTransform>().pos;
+				
+				switch (e->tag()) {
+				case Entities::Box:
+					line = "Box " + std::to_string((int)pos.x) + " "
+						+ std::to_string((int)pos.y) + " "
+						+ std::to_string((int)pos.z) + "\n";
+					sceneFile << line;
+					break;
+
+				case Entities::LightSoruce:
+					line = "Light " + std::to_string((int)pos.x) + " "
+						+ std::to_string((int)pos.y) + " "
+						+ std::to_string((int)pos.z) + "\n";
+					sceneFile << line;
+					break;
+				}
+			}
+		}
+		sceneFile.close();
 	}
 
 	ImGui::End();
@@ -215,24 +246,27 @@ void GameEngine::freeCamera(GLFWwindow* window, float dt) {
 
 void GameEngine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+	ImGuiIO& io = ImGui::GetIO();
 
-	if (action == GLFW_PRESS || action == GLFW_RELEASE) {
-		if (key == GLFW_KEY_1) {
-			glfwSetCursorPosCallback(engine->m_Window, mouse_callback);
-			glfwSetInputMode(engine->m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		engine->m_ToggleEditor = false;
+	if (!io.WantCaptureKeyboard) {
+		if (action == GLFW_PRESS || action == GLFW_RELEASE) {
+			if (key == GLFW_KEY_1) {
+				glfwSetCursorPosCallback(engine->m_Window, mouse_callback);
+				glfwSetInputMode(engine->m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				engine->m_ToggleEditor = false;
 			}
-		else if (key == GLFW_KEY_2) {
-			glfwSetCursorPosCallback(engine->m_Window, NULL);
-			glfwSetInputMode(engine->m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-			engine->m_ToggleEditor = true;
-		}
-		auto kvPair = engine->getCurrentScene()->getCommandMap().find(key);
-		if (kvPair != engine->getCurrentScene()->getCommandMap().end()) {
-			CommandTags::Type cmdType = glfwGetKey(window, key) == GLFW_PRESS ?
-				CommandTags::Start : CommandTags::Stop;
+			else if (key == GLFW_KEY_2) {
+				glfwSetCursorPosCallback(engine->m_Window, NULL);
+				glfwSetInputMode(engine->m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+				engine->m_ToggleEditor = true;
+			}
+			auto kvPair = engine->getCurrentScene()->getCommandMap().find(key);
+			if (kvPair != engine->getCurrentScene()->getCommandMap().end()) {
+				CommandTags::Type cmdType = glfwGetKey(window, key) == GLFW_PRESS ?
+					CommandTags::Start : CommandTags::Stop;
 
-			engine->getCurrentScene()->doCommand(Command(kvPair->second, cmdType));
+				engine->getCurrentScene()->doCommand(Command(kvPair->second, cmdType));
+			}
 		}
 	}
 }
@@ -247,36 +281,42 @@ void GameEngine::resize_callback(GLFWwindow* window, int w, int h) {
 
 void GameEngine::mouse_callback(GLFWwindow* window, double x, double y) {
 	ImGui_ImplGlfw_CursorPosCallback(window, x, y);
+	ImGuiIO& io = ImGui::GetIO();
 
-	float xpos = static_cast<float>(x);
-	float ypos = static_cast<float>(y);
-	if (engine->m_Start) {
+	if (!io.WantCaptureMouse) {
+		float xpos = static_cast<float>(x);
+		float ypos = static_cast<float>(y);
+		if (engine->m_Start) {
+			engine->m_MouseX = xpos;
+			engine->m_MouseY = ypos;
+			engine->m_Start = false;
+		}
+		float xOffset = xpos - engine->m_MouseX;
+		float yOffset = engine->m_MouseY - ypos;
+
 		engine->m_MouseX = xpos;
 		engine->m_MouseY = ypos;
-		engine->m_Start = false;
+
+		engine->camera.ProcessMouseMovement(xOffset, yOffset);
 	}
-	float xOffset = xpos - engine->m_MouseX;
-	float yOffset = engine->m_MouseY - ypos;
-
-	engine->m_MouseX = xpos;
-	engine->m_MouseY = ypos;
-
-	engine->camera.ProcessMouseMovement(xOffset, yOffset);
 }
 
 void GameEngine::mouse_click_callback(GLFWwindow* window, int button, int action, int mods) {
 	ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+	ImGuiIO& io = ImGui::GetIO();
 
-	if (action == GLFW_PRESS) {
-		auto kvPair = engine->getCurrentScene()->getCommandMap().find(button);
-		if (kvPair != engine->getCurrentScene()->getCommandMap().end()) {
-			engine->getCurrentScene()->doCommand(Command(kvPair->second, CommandTags::Start));
+	if (!io.WantCaptureMouse) {
+		if (action == GLFW_PRESS) {
+			auto kvPair = engine->getCurrentScene()->getCommandMap().find(button);
+			if (kvPair != engine->getCurrentScene()->getCommandMap().end()) {
+				engine->getCurrentScene()->doCommand(Command(kvPair->second, CommandTags::Start));
+			}
 		}
-	}
-	else if (action == GLFW_RELEASE) {
-		auto kvPair = engine->getCurrentScene()->getCommandMap().find(button);
-		if (kvPair != engine->getCurrentScene()->getCommandMap().end()) {
-			engine->getCurrentScene()->doCommand(Command(kvPair->second, CommandTags::Stop));
+		else if (action == GLFW_RELEASE) {
+			auto kvPair = engine->getCurrentScene()->getCommandMap().find(button);
+			if (kvPair != engine->getCurrentScene()->getCommandMap().end()) {
+				engine->getCurrentScene()->doCommand(Command(kvPair->second, CommandTags::Stop));
+			}
 		}
 	}
 }

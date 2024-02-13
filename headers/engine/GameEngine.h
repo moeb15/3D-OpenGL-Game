@@ -2,6 +2,7 @@
 #define GAME_ENGINE_H
 
 #include "imgui.h"
+#include "imgui_stdlib.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
@@ -51,7 +52,7 @@ public:
 private:
 	void update(float dt);
 	void freeCamera(GLFWwindow*, float);
-	void sceneEditor(glm::vec3&);
+	void sceneEditor(glm::vec3&, std::string&);
 	void initPairs();
 
 	static void key_callback(GLFWwindow* window, int, int, int, int);
