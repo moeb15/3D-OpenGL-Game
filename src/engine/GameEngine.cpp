@@ -116,9 +116,9 @@ void GameEngine::sceneEditor(glm::vec3& entityPos, std::string& scene) {
 	ImGui::Begin("Scene Editor Window");
 
 	ImGui::Text("Position");
-	ImGui::SliderFloat("X", &entityPos.x, -20.f, 20.f);
-	ImGui::SliderFloat("Y", &entityPos.y, -20.f, 20.f);
-	ImGui::SliderFloat("Z", &entityPos.z, -20.f, 20.f);
+	ImGui::InputFloat("X", &entityPos.x);
+	ImGui::InputFloat("Y", &entityPos.y);
+	ImGui::InputFloat("Z", &entityPos.z);
 
 	ImGui::Text("Entity Type");
 	for (auto& kvPair : m_EntityPairs) {
