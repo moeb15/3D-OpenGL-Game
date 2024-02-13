@@ -54,12 +54,13 @@ void GameEngine::run() {
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	ImGui::StyleColorsClassic();
-	ImGui_ImplGlfw_InitForOpenGL(m_Window, false);
+	ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
 	glViewport(0, 0, 1280, 720);
 	glfwSetFramebufferSizeCallback(m_Window, resize_callback);
 	glfwSetMouseButtonCallback(m_Window, mouse_click_callback);
+	glfwSetCursorPosCallback(m_Window, mouse_callback);
 	glfwSetKeyCallback(m_Window, key_callback);
 	glEnable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(m_Window)) {
@@ -146,7 +147,7 @@ void GameEngine::sceneEditor(glm::vec3& entityPos, std::string& scene) {
 	}
 
 	ImGui::Text("Scene Name");
-	ImGui::InputText("Name", &scene, 32);
+	ImGui::InputText("Name", &scene);
 	if (ImGui::Button("Save")) {
 		std::ofstream sceneFile("assets/scenes/" + std::string(scene) + ".txt");
 		EntityManager::EntityVec& entities = m_SceneMap[m_CurrentScene]->getSceneEntities();
@@ -251,12 +252,12 @@ void GameEngine::key_callback(GLFWwindow* window, int key, int scancode, int act
 	if (!io.WantCaptureKeyboard) {
 		if (action == GLFW_PRESS || action == GLFW_RELEASE) {
 			if (key == GLFW_KEY_1) {
-				glfwSetCursorPosCallback(engine->m_Window, mouse_callback);
+				//glfwSetCursorPosCallback(engine->m_Window, mouse_callback);
 				glfwSetInputMode(engine->m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 				engine->m_ToggleEditor = false;
 			}
 			else if (key == GLFW_KEY_2) {
-				glfwSetCursorPosCallback(engine->m_Window, NULL);
+				//glfwSetCursorPosCallback(engine->m_Window, NULL);
 				glfwSetInputMode(engine->m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 				engine->m_ToggleEditor = true;
 			}
@@ -283,7 +284,7 @@ void GameEngine::mouse_callback(GLFWwindow* window, double x, double y) {
 	ImGui_ImplGlfw_CursorPosCallback(window, x, y);
 	ImGuiIO& io = ImGui::GetIO();
 
-	if (!io.WantCaptureMouse) {
+	if (!engine->m_ToggleEditor) {
 		float xpos = static_cast<float>(x);
 		float ypos = static_cast<float>(y);
 		if (engine->m_Start) {
