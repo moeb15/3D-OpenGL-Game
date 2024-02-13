@@ -22,6 +22,7 @@ public:
 	virtual void sDoCommand(const Command&) = 0;
 	virtual void sRender() = 0;
 	virtual void addToScene(Entities::ID, glm::vec3) = 0;
+	virtual EntityManager::EntityVec& getSceneEntities() = 0;
 
 	std::unordered_map<int, CommandTags::Name>& getCommandMap();
 	void doCommand(Command);
