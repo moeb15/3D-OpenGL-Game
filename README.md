@@ -11,7 +11,7 @@ At the moment the following has been completed,
 * Models, models are loaded using Assimp
 * Shader and Texture classes
 * Raycasting
-* Level editor (in-progress)
+* Level editor
 * GameEngine singleton class 
 
 I'll be actively adding to and refining this project.
