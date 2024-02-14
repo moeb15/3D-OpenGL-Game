@@ -31,6 +31,9 @@ private:
 	bool m_ToggleEditor;
 	std::unordered_map<Entities::ID, bool> m_EntityPairs;
 	ResourceManager m_Resources;
+	std::vector<std::string> m_SavedScenes;
+
+	const std::string scenePath = "assets/scenes/";
 
 	static GameEngine* engine;
 
@@ -43,6 +46,7 @@ public:
 	GLFWwindow* getWindow();
 	glm::vec2 getMousePos();
 	ResourceManager& getResources();
+	std::vector<std::string>& getSavedScenes();
 	void changeScene(Scenes::ID, std::shared_ptr<Scene>);
 	std::shared_ptr<Scene>& getCurrentScene();
 	void toggleCamera();
@@ -54,6 +58,8 @@ private:
 	void freeCamera(GLFWwindow*, float);
 	void sceneEditor(glm::vec3&, std::string&);
 	void initPairs();
+	void initSavedScenes();
+	void saveScene(std::string&);
 
 	static void key_callback(GLFWwindow* window, int, int, int, int);
 	static void mouse_callback(GLFWwindow*, double, double);

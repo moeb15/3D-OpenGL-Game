@@ -4,6 +4,7 @@
 #include "DefaultScene.h"
 #include <stdexcept>
 #include <cassert>
+#include <filesystem>
 
 GameEngine* GameEngine::engine = nullptr;
 
@@ -33,8 +34,10 @@ GameEngine::GameEngine() {
 		throw std::runtime_error("GameEngine failed to create OpenGL window");
 	}
 
+	std::string defScenePath = scenePath + "defaultscene.txt";
+
 	std::shared_ptr<DefaultScene> dScene(
-		new DefaultScene(this));
+		new DefaultScene(this, defScenePath.c_str()));
 
 	m_CurrentScene = Scenes::Default;
 	m_SceneMap.insert(std::make_pair(Scenes::Default,
@@ -46,6 +49,7 @@ GameEngine::GameEngine() {
 
 void GameEngine::run() {
 	initPairs();
+	initSavedScenes();
 	glm::vec3 entityPos;
 	std::string sceneName;
 
@@ -104,6 +108,13 @@ void GameEngine::initPairs() {
 	}
 }
 
+void GameEngine::initSavedScenes() {
+	for (auto& file : std::filesystem::directory_iterator(scenePath)) {
+		m_SavedScenes.push_back(
+			file.path().string().substr(scenePath.length()));
+	}
+}
+
 void GameEngine::sceneEditor(glm::vec3& entityPos, std::string& scene) {
 	int w, h;
 	glfwGetWindowSize(m_Window, &w, &h);
@@ -146,6 +157,7 @@ void GameEngine::sceneEditor(glm::vec3& entityPos, std::string& scene) {
 		}
 	}
 
+	// saves the scene layout
 	ImGui::Text("Scene Name");
 	ImGui::InputText("Name", &scene);
 	if (ImGui::Button("Save")) {
@@ -174,6 +186,20 @@ void GameEngine::sceneEditor(glm::vec3& entityPos, std::string& scene) {
 			}
 		}
 		sceneFile.close();
+		std::string filename = scene + ".txt";
+		saveScene(filename);
+	}
+
+	// select scene layout files
+	ImGui::Text("Saved Scenes");
+	for (std::string& name : m_SavedScenes) {
+		if (ImGui::Button(name.c_str())) {
+			std::string path = scenePath + name;
+			std::shared_ptr<DefaultScene> newLvl(
+				new DefaultScene(engine, path.c_str()));
+			m_SceneMap[m_CurrentScene] = 
+				std::static_pointer_cast<Scene>(newLvl);
+		}
 	}
 
 	ImGui::End();
@@ -228,6 +254,14 @@ glm::vec2 GameEngine::getMousePos() {
 
 ResourceManager& GameEngine::getResources() {
 	return m_Resources;
+}
+
+std::vector<std::string>& GameEngine::getSavedScenes() {
+	return m_SavedScenes;
+}
+
+void GameEngine::saveScene(std::string& sceneName) {
+	m_SavedScenes.push_back(sceneName);
 }
 
 void GameEngine::freeCamera(GLFWwindow* window, float dt) {
