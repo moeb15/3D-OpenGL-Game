@@ -48,18 +48,18 @@ float vertices[] = {
 	-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f
 };
 
-DefaultScene::DefaultScene(GameEngine* engine):
+DefaultScene::DefaultScene(GameEngine* engine, const char* path):
 	Scene(engine),
 	m_DirectionalLight(-0.5,-0.5,-0.5){
 
-	init();
+	init(path);
 }
 
 EntityManager::EntityVec& DefaultScene::getSceneEntities() {
 	return m_EM.getEntities();
 }
 
-void DefaultScene::init() {
+void DefaultScene::init(const char* path) {
 	registerCommand(GLFW_KEY_A, CommandTags::Left);
 	registerCommand(GLFW_KEY_D, CommandTags::Right);
 	registerCommand(GLFW_KEY_W, CommandTags::Forward);
@@ -78,7 +78,7 @@ void DefaultScene::init() {
 //	spawnBox(glm::vec3(0, 10, 0));
 	spawnPlayer();
 	//spawnModel();
-	buildScene();
+	buildScene(path);
 }
 
 void DefaultScene::addToScene(Entities::ID tag, glm::vec3 pos) {
@@ -298,10 +298,10 @@ void DefaultScene::spawnBox(const glm::vec3& pos) {
 	glBindVertexArray(0);
 }
 
-void DefaultScene::buildScene() {
+void DefaultScene::buildScene(const char* path) {
 
 	std::unordered_map<Entities::ID, 
-		std::vector<std::vector<int>>> positionData = Utils::getSceneVector("assets/scenes/defaultscene.txt");
+		std::vector<std::vector<int>>> positionData = Utils::getSceneVector(path);
 	glm::vec3 pos;
 
 	for (auto& kvPair : positionData) {

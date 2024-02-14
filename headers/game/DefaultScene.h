@@ -17,13 +17,13 @@ private:
 
 
 public:
-	DefaultScene(GameEngine* gameEngine);
+	DefaultScene(GameEngine* gameEngine, const char* path);
 
 	virtual void update(float);
 	void spawnModel(glm::vec3&);
 	void spawnPlayer();
 	void spawnBox(const glm::vec3&);;
-	void buildScene();
+	void buildScene(const char* path);
 	void spawnLightSource(const glm::vec3& pos = glm::vec3(0,10,0));
 	void loadResources();
 
@@ -36,7 +36,7 @@ public:
 	void sDraggable();
 	virtual void addToScene(Entities::ID, glm::vec3);
 private:
-	void init();
+	void init(const char* path);
 	void spawnBullet(std::shared_ptr<Entity>&);
 };
 
